@@ -1,0 +1,105 @@
+name: Pruebas de rendimiento
+
+# Se ejecuta con cada push a main o a mano desde la pestaña Actions.
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  rendimiento:
+    name: JMeter sobre la API de Tiquetmania
+    runs-on: ubuntu-latest   # máquina virtual nueva y vacía en cada ejecución
+    timeout-minutes: 30
+    env:
+      JMETER_VERSION: "5.6.3"
+
+    steps:
+      # 1. Descargar el repositorio (API + plan de pruebas del mismo commit)
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      # 2. JMeter 5.6.3 necesita Java 17
+      - name: Instalar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # 3. Descargar JMeter y agregar su carpeta bin al PATH
+      - name: Instalar Apache JMeter ${{ env.JMETER_VERSION }}
+        run: |
+          curl -sSfL -o jmeter.tgz \
+            "https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz"
+          tar -xzf jmeter.tgz -C "$HOME"
+          echo "$HOME/apache-jmeter-${JMETER_VERSION}/bin" >> "$GITHUB_PATH"
+
+      - name: Verificar versiones
+        run: |
+          java -version
+          jmeter --version
+
+      # 4. Levantar la API en segundo plano en el puerto 8080
+      - name: Levantar la API en segundo plano
+        run: |
+          nohup python3 api/ticketmania_simple.py --puerto 8080 > api.log 2>&1 &
+          echo "PID de la API: $!"
+
+      # 5. Esperar a que /api/salud responda antes de lanzar la carga
+      - name: Esperar a que la API responda en /api/salud
+        run: |
+          for intento in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8080/api/salud; then
+              echo ""
+              echo "API lista después de $intento intento(s)"
+              exit 0
+            fi
+            echo "Intento $intento: la API aún no responde, esperando 2 s..."
+            sleep 2
+          done
+          echo "La API no respondió en 60 s"
+          cat api.log
+          exit 1
+
+      # 6 y 7. Ejecutar el plan en modo no-GUI desde la carpeta del plan
+      #        (así encuentra datos.csv con ruta relativa) y generar .jtl + reporte HTML
+      - name: Ejecutar JMeter en modo no-GUI
+        working-directory: pruebas/jmeter
+        run: |
+          jmeter -n -t Ticketmania.jmx \
+            -l resultados.jtl \
+            -e -o reporte \
+            -j jmeter.log
+
+      # 8. JMeter no falla cuando una petición responde mal: revisamos el .jtl
+      - name: Revisar peticiones fallidas en el .jtl
+        working-directory: pruebas/jmeter
+        run: |
+          python3 - <<'EOF'
+          import csv, sys
+          with open("resultados.jtl", newline="", encoding="utf-8") as f:
+              filas = list(csv.DictReader(f))
+          fallidas = [r for r in filas if r["success"].strip().lower() != "true"]
+          print(f"Peticiones totales: {len(filas)}")
+          print(f"Peticiones fallidas: {len(fallidas)}")
+          for r in fallidas[:20]:
+              print(f"  - {r['label']}: código {r['responseCode']} {r['responseMessage']} {r.get('failureMessage', '')}")
+          if not filas:
+              print("El .jtl está vacío: la prueba no generó muestras")
+              sys.exit(1)
+          if fallidas:
+              sys.exit(1)
+          print("Sin peticiones fallidas")
+          EOF
+
+      # 9. Subir el reporte HTML siempre, aunque un paso anterior haya fallado
+      - name: Subir reporte HTML como artefacto
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-rendimiento
+          path: |
+            pruebas/jmeter/reporte/
+            pruebas/jmeter/resultados.jtl
+            pruebas/jmeter/jmeter.log
+          if-no-files-found: warn

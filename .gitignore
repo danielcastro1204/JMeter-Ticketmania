@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.log
+api.log
+# Salidas del plan del pipeline (se generan en cada ejecución)
+pruebas/jmeter/resultados.jtl
+pruebas/jmeter/reporte/
+pruebas/jmeter/jmeter.log
+# .jtl crudos de experimentación: se versionan comprimidos (resultados.jtl.zip)
+pruebas/experimentacion/resultados/*/resultados.jtl
+hs_err_pid*.log
