@@ -1,0 +1,11 @@
+id,descripcion,threads,ramp,loops,delay,range,sync,csv
+E1,Base: 10 usuarios,10,10,5,500,1000,1,datos.csv
+E2,50 usuarios,50,10,5,500,1000,1,datos.csv
+E3,200 usuarios,200,10,5,500,1000,1,datos.csv
+E4,500 usuarios,500,10,5,500,1000,1,datos.csv
+E5,100 usuarios ramp 1 s,100,1,5,500,1000,1,datos.csv
+E6,100 usuarios ramp 30 s,100,30,5,500,1000,1,datos.csv
+E7,50 usuarios sin temporizador,50,10,5,0,0,1,datos.csv
+E8,100 usuarios sincronizados,100,10,1,500,1000,100,datos.csv
+E9,50 usuarios solo VIP,50,10,5,500,1000,1,datos_vip.csv
+E10,50 usuarios solo general,50,10,5,500,1000,1,datos_general.csv
