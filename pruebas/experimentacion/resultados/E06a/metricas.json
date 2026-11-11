@@ -1,0 +1,116 @@
+{
+  "id": "E06a",
+  "pregunta": "P6",
+  "descripcion": "100 usuarios x3, sin sincronizar",
+  "props_cambiadas": {
+    "hilos": 100,
+    "bucles": 3,
+    "duracion": 600,
+    "sync": 1
+  },
+  "props_efectivas": {
+    "hilos": 100,
+    "rampup": 10,
+    "duracion": 600,
+    "bucles": 3,
+    "pausa_min": 500,
+    "pausa_rango": 1000,
+    "sync": 1,
+    "conexion": "keep-alive",
+    "csv": "datos.csv"
+  },
+  "duracion_real_s": 28.9,
+  "estadisticas": {
+    "Tarifas": {
+      "muestras": 300,
+      "media_ms": 3.38,
+      "mediana_ms": 3,
+      "p90_ms": 4,
+      "p95_ms": 4,
+      "p99_ms": 7,
+      "max_ms": 44,
+      "errores": 0,
+      "error_pct": 0.0,
+      "throughput_rps": 19.02,
+      "connect_media_ms": 1.583,
+      "duracion_s": 15.8
+    },
+    "SeleccionTarifaYCantidad": {
+      "muestras": 300,
+      "media_ms": 3.25,
+      "mediana_ms": 3,
+      "p90_ms": 4,
+      "p95_ms": 5,
+      "p99_ms": 6,
+      "max_ms": 7,
+      "errores": 0,
+      "error_pct": 0.0,
+      "throughput_rps": 18.39,
+      "connect_media_ms": 1.433,
+      "duracion_s": 16.3
+    },
+    "Pago": {
+      "muestras": 300,
+      "media_ms": 3.17,
+      "mediana_ms": 3,
+      "p90_ms": 4,
+      "p95_ms": 5,
+      "p99_ms": 6,
+      "max_ms": 6,
+      "errores": 0,
+      "error_pct": 0.0,
+      "throughput_rps": 18.03,
+      "connect_media_ms": 1.363,
+      "duracion_s": 16.6
+    },
+    "TOTAL": {
+      "muestras": 900,
+      "media_ms": 3.27,
+      "mediana_ms": 3,
+      "p90_ms": 4,
+      "p95_ms": 5,
+      "p99_ms": 6,
+      "max_ms": 44,
+      "errores": 0,
+      "error_pct": 0.0,
+      "throughput_rps": 49.57,
+      "connect_media_ms": 1.46,
+      "duracion_s": 18.2
+    }
+  },
+  "errores": {},
+  "serie_10s": [
+    {
+      "seg": 0,
+      "rps": 55.9,
+      "media_ms": 3.4,
+      "p95_ms": 5,
+      "error_pct": 0.0,
+      "hilos": 91
+    },
+    {
+      "seg": 10,
+      "rps": 34.1,
+      "media_ms": 3.0,
+      "p95_ms": 4,
+      "error_pct": 0.0,
+      "hilos": 81
+    }
+  ],
+  "recursos": {
+    "cpu_sistema_pct_media": 27.4,
+    "cpu_sistema_pct_max": 44.2,
+    "cpu_api_pct_media": 0.3,
+    "cpu_api_pct_max": 0.9,
+    "cpu_jmeter_pct_media": 2.8,
+    "cpu_jmeter_pct_max": 19.8,
+    "mem_api_mb_media": 24.5,
+    "mem_api_mb_max": 24.5,
+    "mem_jmeter_mb_media": 224.7,
+    "mem_jmeter_mb_max": 281.4,
+    "hilos_api_media": 4.0,
+    "hilos_api_max": 4.0,
+    "mem_api_mb_inicio": 24.4,
+    "mem_api_mb_fin": 24.4
+  }
+}

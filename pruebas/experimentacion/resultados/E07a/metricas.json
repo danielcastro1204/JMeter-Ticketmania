@@ -1,0 +1,158 @@
+{
+  "id": "E07a",
+  "pregunta": "P7",
+  "descripcion": "50 usuarios sin pausas",
+  "props_cambiadas": {
+    "hilos": 50,
+    "pausa_min": 0,
+    "pausa_rango": 0
+  },
+  "props_efectivas": {
+    "hilos": 50,
+    "rampup": 10,
+    "duracion": 60,
+    "bucles": -1,
+    "pausa_min": 0,
+    "pausa_rango": 0,
+    "sync": 1,
+    "conexion": "keep-alive",
+    "csv": "datos.csv"
+  },
+  "duracion_real_s": 79.3,
+  "estadisticas": {
+    "Tarifas": {
+      "muestras": 64099,
+      "media_ms": 11.17,
+      "mediana_ms": 6,
+      "p90_ms": 29,
+      "p95_ms": 37,
+      "p99_ms": 64,
+      "max_ms": 374,
+      "errores": 58035,
+      "error_pct": 90.54,
+      "throughput_rps": 1070.56,
+      "connect_media_ms": 8.92,
+      "duracion_s": 59.9
+    },
+    "SeleccionTarifaYCantidad": {
+      "muestras": 64086,
+      "media_ms": 11.24,
+      "mediana_ms": 6,
+      "p90_ms": 29,
+      "p95_ms": 37,
+      "p99_ms": 65,
+      "max_ms": 359,
+      "errores": 57750,
+      "error_pct": 90.11,
+      "throughput_rps": 1071.01,
+      "connect_media_ms": 8.894,
+      "duracion_s": 59.8
+    },
+    "Pago": {
+      "muestras": 64068,
+      "media_ms": 11.25,
+      "mediana_ms": 6,
+      "p90_ms": 29,
+      "p95_ms": 37,
+      "p99_ms": 66,
+      "max_ms": 351,
+      "errores": 62288,
+      "error_pct": 97.22,
+      "throughput_rps": 1071.41,
+      "connect_media_ms": 8.9,
+      "duracion_s": 59.8
+    },
+    "TOTAL": {
+      "muestras": 192253,
+      "media_ms": 11.22,
+      "mediana_ms": 6,
+      "p90_ms": 29,
+      "p95_ms": 37,
+      "p99_ms": 65,
+      "max_ms": 374,
+      "errores": 178073,
+      "error_pct": 92.62,
+      "throughput_rps": 3210.8,
+      "connect_media_ms": 8.905,
+      "duracion_s": 59.9
+    }
+  },
+  "errores": {
+    "Tarifas | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 56641,
+    "Pago | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 56563,
+    "SeleccionTarifaYCantidad | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 56403,
+    "Pago | 404 | Not Found": 4365,
+    "Pago | Non HTTP response code: java.net.SocketException | Non HTTP response message: No buffer space available (maximu": 1,
+    "SeleccionTarifaYCantidad | Non HTTP response code: java.net.BindException | Non HTTP response message: Address already in use: getsockop": 1345,
+    "Pago | Non HTTP response code: java.net.BindException | Non HTTP response message: Address already in use: getsockop": 1357,
+    "Tarifas | Non HTTP response code: java.net.BindException | Non HTTP response message: Address already in use: getsockop": 1394,
+    "Pago | Non HTTP response code: java.net.SocketException | Non HTTP response message: Connection reset by peer": 2,
+    "SeleccionTarifaYCantidad | Non HTTP response code: java.net.SocketException | Non HTTP response message: Connection reset by peer": 2
+  },
+  "serie_10s": [
+    {
+      "seg": 0,
+      "rps": 3932.2,
+      "media_ms": 3.6,
+      "p95_ms": 15,
+      "error_pct": 86.5,
+      "hilos": 50
+    },
+    {
+      "seg": 10,
+      "rps": 4474.6,
+      "media_ms": 6.2,
+      "p95_ms": 22,
+      "error_pct": 92.4,
+      "hilos": 50
+    },
+    {
+      "seg": 20,
+      "rps": 3984.8,
+      "media_ms": 10.0,
+      "p95_ms": 31,
+      "error_pct": 94.3,
+      "hilos": 50
+    },
+    {
+      "seg": 30,
+      "rps": 3044.4,
+      "media_ms": 14.5,
+      "p95_ms": 38,
+      "error_pct": 94.9,
+      "hilos": 50
+    },
+    {
+      "seg": 40,
+      "rps": 2181.8,
+      "media_ms": 20.2,
+      "p95_ms": 52,
+      "error_pct": 95.1,
+      "hilos": 50
+    },
+    {
+      "seg": 50,
+      "rps": 1607.5,
+      "media_ms": 28.6,
+      "p95_ms": 70,
+      "error_pct": 96.1,
+      "hilos": 50
+    }
+  ],
+  "recursos": {
+    "cpu_sistema_pct_media": 65.2,
+    "cpu_sistema_pct_max": 91.0,
+    "cpu_api_pct_media": 2.4,
+    "cpu_api_pct_max": 9.6,
+    "cpu_jmeter_pct_media": 41.0,
+    "cpu_jmeter_pct_max": 59.5,
+    "mem_api_mb_media": 25.7,
+    "mem_api_mb_max": 26.3,
+    "mem_jmeter_mb_media": 749.4,
+    "mem_jmeter_mb_max": 880.2,
+    "hilos_api_media": 5.1,
+    "hilos_api_max": 7.0,
+    "mem_api_mb_inicio": 24.4,
+    "mem_api_mb_fin": 26.2
+  }
+}

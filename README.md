@@ -19,6 +19,7 @@ JMeter-Ticketmania/
 │       ├── experimentacion.jmx
 │       ├── datos.csv, datos_general.csv, datos_vip.csv
 │       ├── run_experimentos.py      # ejecuta los escenarios en no-GUI y mide recursos
+│       ├── graficas.py              # genera resultados/graficas/*.png
 │       ├── RESPUESTAS.md            # las 10 preguntas, diseño, resultados y limitaciones
 │       └── resultados/              # por escenario: reporte HTML, metricas.json, recursos.csv, .jtl.zip
 ├── .github/

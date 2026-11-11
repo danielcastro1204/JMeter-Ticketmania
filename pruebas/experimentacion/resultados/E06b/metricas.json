@@ -1,0 +1,124 @@
+{
+  "id": "E06b",
+  "pregunta": "P6",
+  "descripcion": "100 usuarios x3, Selección sincronizada en grupos de 100",
+  "props_cambiadas": {
+    "hilos": 100,
+    "bucles": 3,
+    "duracion": 600,
+    "sync": 100
+  },
+  "props_efectivas": {
+    "hilos": 100,
+    "rampup": 10,
+    "duracion": 600,
+    "bucles": 3,
+    "pausa_min": 500,
+    "pausa_rango": 1000,
+    "sync": 100,
+    "conexion": "keep-alive",
+    "csv": "datos.csv"
+  },
+  "duracion_real_s": 34.5,
+  "estadisticas": {
+    "Tarifas": {
+      "muestras": 300,
+      "media_ms": 2.55,
+      "mediana_ms": 2,
+      "p90_ms": 3,
+      "p95_ms": 3,
+      "p99_ms": 4,
+      "max_ms": 41,
+      "errores": 0,
+      "error_pct": 0.0,
+      "throughput_rps": 16.37,
+      "connect_media_ms": 1.09,
+      "duracion_s": 18.3
+    },
+    "SeleccionTarifaYCantidad": {
+      "muestras": 300,
+      "media_ms": 2.59,
+      "mediana_ms": 2,
+      "p90_ms": 3,
+      "p95_ms": 4,
+      "p99_ms": 4,
+      "max_ms": 14,
+      "errores": 0,
+      "error_pct": 0.0,
+      "throughput_rps": 17.37,
+      "connect_media_ms": 1.09,
+      "duracion_s": 17.3
+    },
+    "Pago": {
+      "muestras": 300,
+      "media_ms": 2.36,
+      "mediana_ms": 2,
+      "p90_ms": 3,
+      "p95_ms": 3,
+      "p99_ms": 4,
+      "max_ms": 5,
+      "errores": 0,
+      "error_pct": 0.0,
+      "throughput_rps": 16.51,
+      "connect_media_ms": 0.94,
+      "duracion_s": 18.2
+    },
+    "TOTAL": {
+      "muestras": 900,
+      "media_ms": 2.5,
+      "mediana_ms": 2,
+      "p90_ms": 3,
+      "p95_ms": 4,
+      "p99_ms": 4,
+      "max_ms": 41,
+      "errores": 0,
+      "error_pct": 0.0,
+      "throughput_rps": 37.03,
+      "connect_media_ms": 1.04,
+      "duracion_s": 24.3
+    }
+  },
+  "errores": {},
+  "serie_10s": [
+    {
+      "seg": 0,
+      "rps": 24.7,
+      "media_ms": 2.9,
+      "p95_ms": 4,
+      "error_pct": 0.0,
+      "hilos": 100
+    },
+    {
+      "seg": 10,
+      "rps": 55.1,
+      "media_ms": 2.4,
+      "p95_ms": 3,
+      "error_pct": 0.0,
+      "hilos": 100
+    },
+    {
+      "seg": 20,
+      "rps": 10.2,
+      "media_ms": 2.2,
+      "p95_ms": 3,
+      "error_pct": 0.0,
+      "hilos": 51
+    }
+  ],
+  "recursos": {
+    "cpu_sistema_pct_media": 23.4,
+    "cpu_sistema_pct_max": 36.7,
+    "cpu_api_pct_media": 0.2,
+    "cpu_api_pct_max": 1.2,
+    "cpu_jmeter_pct_media": 2.0,
+    "cpu_jmeter_pct_max": 16.9,
+    "mem_api_mb_media": 24.5,
+    "mem_api_mb_max": 24.6,
+    "mem_jmeter_mb_media": 220.5,
+    "mem_jmeter_mb_max": 279.2,
+    "hilos_api_media": 4.3,
+    "hilos_api_max": 6.0,
+    "mem_api_mb_inicio": 24.4,
+    "mem_api_mb_fin": 24.5
+  }
+}
