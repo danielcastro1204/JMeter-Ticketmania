@@ -1,393 +1,482 @@
-# Ejercicio 2 · Experimentación individual con JMeter (Tiquetmania)
+# Experimentación con JMeter · ¿Qué pasaría si...?
 
-Plan independiente del pipeline: [`experimentacion.jmx`](experimentacion.jmx). Todos los valores de este
-documento salen de las ejecuciones en modo no-GUI guardadas en [`resultados/`](resultados/). Cada escenario
-tiene su reporte HTML (`resultados/<ID>/reporte/index.html`), sus métricas (`metricas.json`), el uso de CPU y
-memoria (`recursos.csv`) y el `.jtl` crudo comprimido. La tabla completa está en
-[`resultados/resumen.md`](resultados/resumen.md) y las gráficas en [`resultados/graficas/`](resultados/graficas/).
+**Tiquetmania · Pruebas de carga, estrés y concurrencia en local**
+
+> El documento de entrega (Word, con todas las capturas) está en [`entrega/Experimentacion_JMeter_Tiquetmania.docx`](entrega/Experimentacion_JMeter_Tiquetmania.docx). Este archivo tiene el mismo contenido en Markdown.
+
+Este documento responde las 10 preguntas de la guía «¿Qué pasaría si...?». Cada pregunta tiene el escenario que diseñé, capturas del escenario configurado en JMeter, los resultados del reporte HTML y del monitoreo de CPU y memoria, mi respuesta y lo que no pude medir o lo que cambió el resultado.
+
+Plan de experimentación: pruebas/experimentacion/experimentacion.jmx (independiente del plan del pipeline). Es una plantilla con propiedades ${__P(...)}; para cada escenario el script run_experimentos.py genera escenarios/<ID>.jmx con los valores concretos. Ese es el archivo que se ejecuta y el que aparece en las capturas, así que cada ejecución cambia una sola variable respecto de la otra.
 
 ## Entorno y método
 
-| Aspecto | Valor |
+| Aspecto | Detalle |
 |---|---|
-| Equipo | AMD Ryzen 7 4800H (8 núcleos / 16 hilos), 15,4 GB RAM, Windows 11 |
-| Software | Apache JMeter 5.6.3 con Java 17 (Microsoft OpenJDK 17.0.20), Python 3.13 para la API |
-| Plugins | jpgc Standard (Transactions per Second), jpgc PerfMon y jpgc Custom Thread Groups (Ultimate Thread Group) |
-| API | `api/ticketmania_simple.py` en `127.0.0.1:8080`, **reiniciada antes de cada escenario** (memoria limpia) |
-| Flujo por usuario | `GET /api/tarifas` → `POST /api/seleccion` (JSON Extractor `num_reserva`) → `POST /api/pago` (JSON Assertion `$.estado = APROBADO`) |
-| Ejecución | `run_experimentos.py`: `java -jar ApacheJMeter.jar -n -t experimentacion.jmx -J<prop>=<valor> -l resultados.jtl -e -o reporte` |
-| Hardware | PerfMon + ServerAgent 2.2.1 **no funcionó**: la librería SIGAR produce `EXCEPTION_ACCESS_VIOLATION` en `sigar-amd64-winnt.dll` con Windows 11 (el riesgo que menciona la guía). Lo reemplacé con un monitor en Python (`psutil`), que toma 1 muestra por segundo del CPU y la memoria del equipo, del proceso de la API y del proceso de JMeter. El colector PerfMon queda en el plan, deshabilitado. |
+| Equipo | AMD Ryzen 7 4800H (8 núcleos / 16 hilos), 15,4 GB de RAM, Windows 11 |
+| Software | Apache JMeter 5.6.3 con Java 17; API ticketmania_simple.py en Python 3.13 (127.0.0.1:8080) |
+| Plugins | jpgc Standard Set (Transactions per Second), jpgc PerfMon y jpgc Custom Thread Groups (Ultimate Thread Group) |
+| Flujo por usuario | GET /api/tarifas → POST /api/seleccion (JSON Extractor num_reserva + JSON Assertion del total) → POST /api/pago (JSON Assertion estado = APROBADO y total) |
+| Datos | datos.csv con 24 combinaciones (4 tarifas × cantidades 1 a 6) y la columna total_esperado = precio × cantidad |
+| Temporizador base | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
+| Ejecución | Modo no-GUI: jmeter -n -t escenarios/<ID>.jmx -l resultados.jtl -e -o reporte. Antes de cada escenario se reinicia la API y se espera a que se liberen las conexiones TCP del escenario anterior. |
+| Hardware | PerfMon + ServerAgent 2.2.1 no funcionó: la librería SIGAR se cae con EXCEPTION_ACCESS_VIOLATION en Windows 11. Lo reemplacé con un monitor en Python (psutil) que toma 1 muestra por segundo del CPU y la memoria del equipo, de la API y de JMeter (recursos.csv de cada escenario). |
 
-**Cómo se respeta "una variable por ejecución".** El plan está parametrizado con propiedades
-(`${__P(hilos,10)}`, `${__P(rampup,10)}`, `${__P(duracion,60)}`, `${__P(bucles,-1)}`, `${__P(pausa_min,500)}`,
-`${__P(pausa_rango,1000)}`, `${__P(sync,1)}`, `${__P(csv,datos.csv)}`, `${__P(conexion,keep-alive)}`,
-`${__P(utg1..utg4,0)}`). Los valores base (10 usuarios, ramp-up de 10 s, 60 s, pausas de 0,5–1,5 s,
-keep-alive y CSV mixto) solo se cambian con `-J` en lo que cada escenario declara en `run_experimentos.py`. El
-plan nunca se edita entre corridas.
+## Limitaciones generales y qué cambió el resultado
 
-**Elementos de JMeter utilizados:** Grupo de Hilos estándar con planificador (duración) y contador de
-bucle; **Ultimate Thread Group** (estrés por escalones); **Temporizador Aleatorio Uniforme** (tiempo de
-pensamiento); **Temporizador Sincronizado** (concurrencia real); CSV Data Set; Valores por Defecto HTTP;
-Gestor de Cabecera HTTP; JSON Extractor; JSON Assertion; Reporte resumen; jp@gc Transactions per Second; Debug
-Sampler y Ver Árbol de Resultados (estos dos **deshabilitados**, porque solo sirven para depurar en GUI).
-
-**Depuración en GUI y medición en no-GUI.** Primero se abre `experimentacion.jmx` en la GUI, se habilitan el
-Debug Sampler y el Árbol de Resultados, y se ejecuta con pocos hilos para comprobar que `num_reserva` se
-extrae y que el pago responde `APROBADO`. Después se deshabilitan y se mide solo en no-GUI, porque la interfaz
-y el Árbol de Resultados consumen CPU y memoria del mismo equipo donde corre la API.
-
-**Métrica de éxito que uso.** Cuando hay errores, JMeter cuenta como "throughput" también las peticiones
-rechazadas, que fallan en microsegundos e inflan el número. Por eso reporto además las **peticiones exitosas
-por segundo** (`throughput × (1 − %error)`) y los tiempos calculados **solo sobre respuestas correctas**.
-
----
+- La API y JMeter comparten el mismo computador. Como recomienda la guía, en una prueba real la API debería correr sola en un equipo dedicado: aquí el resultado mide a los dos juntos.
+- PerfMon no estuvo disponible (SIGAR falla en Windows 11); las métricas de hardware vienen de psutil, por proceso, con 1 s de resolución.
+- Cada escenario se ejecutó una vez. Las diferencias de pocas décimas de milisegundo están dentro del ruido.
+- La API responde en HTTP/1.0: cada petición abre una conexión TCP nueva. En Windows hay 16 384 puertos dinámicos y cada conexión cerrada queda un tiempo en TIME_WAIT, así que con cargas altas y sostenidas se agotan los puertos del lado de JMeter (java.net.BindException). Es un límite del equipo generador, no de la API.
+- Qué cambió el resultado: la primera ejecución de E05a dio 0,15 % de errores (BindException) porque empezó con miles de conexiones del escenario anterior todavía en TIME_WAIT. Agregué al script una espera hasta que queden menos de 500 conexiones en TIME_WAIT, repetí E05a y E10, y E05a dio 0 % de errores.
 
 ## Ejecución local del Ejercicio 1
 
-Antes de subir `pruebas/jmeter/Ticketmania.jmx` (200 hilos, subida de 300 s, bucle 1, `datos.csv` relativo,
-pausas de 500–1500 ms) lo ejecuté localmente en no-GUI desde `pruebas/jmeter/`. El reporte está en
-[`resultados/EJ1-local/reporte/`](resultados/EJ1-local/reporte/index.html).
-
-| Etiqueta | Muestras | Media (ms) | p95 (ms) | Máx (ms) | % Error | Throughput |
-|---|---|---|---|---|---|---|
-| Tarifas | 200 | 2,60 | 4 | 35 | 0 % | 0,67/s |
-| SeleccionTarifaYCantidad | 200 | 2,61 | 4 | 6 | 0 % | 0,67/s |
-| Pago | 200 | 2,73 | 4 | 6 | 0 % | 0,67/s |
-| **Total** | **600** | **2,65** | **4** | **35** | **0 %** | **2,0/s** |
-
-Duró 5 min 02 s y el paso de validación del pipeline (el script que lee la columna `success` del `.jtl`)
-respondió `Peticiones fallidas: 0` (código 0). Además lo probé con un `.jtl` alterado con una muestra fallida y
-terminó con código 1, que es el comportamiento esperado para dejar el job en rojo. En GitHub Actions
-([ejecución 43048478453](https://github.com/danielcastro1204/JMeter-Ticketmania/actions/runs/43048478453)) el
-resultado fue el mismo: 600 muestras, 0 errores, job en verde en 5 min 37 s y artefacto `reporte-rendimiento`
-publicado.
+Antes de subir `pruebas/jmeter/Ticketmania.jmx` (200 hilos, subida de 300 s, bucle 1, `datos.csv` con ruta relativa) lo ejecuté en local en modo no-GUI: 600 muestras, media de 2,65 ms, p95 de 4 ms, máx. de 35 ms y 0 % de errores en 5 min 02 s (reporte en [`resultados/EJ1-local/reporte/`](resultados/EJ1-local/reporte/index.html)). El paso del pipeline que revisa el `.jtl` terminó con código 0, y con un `.jtl` alterado con una petición fallida terminó con 1. En GitHub Actions el job quedó en verde con las mismas 600 muestras sin errores y publicó el artefacto `reporte-rendimiento`.
 
 ---
 
-## Resumen de escenarios
+## P1 · CARGA: ¿Qué pasaría si subo de 20 a 500 usuarios? ¿Cambia el throughput, el tiempo de respuesta o ambos?
 
-| ID | Pregunta | Variable cambiada (resto = base) | Muestras | Media (ms) | p95 (ms) | Máx (ms) | % Error | Total/s | Exitosas/s |
-|---|---|---|---|---|---|---|---|---|---|
-| E01 | P1 | — (línea base, 10 usuarios) | 547 | 2,43 | 3 | 35 | 0 | 9,3 | 9,3 |
-| E02a | P2 | hilos = 25 | 1 371 | 2,24 | 3 | 46 | 0 | 23,4 | 23,4 |
-| E02b | P2, P4, P8, P9 | hilos = 50 | 2 729 | 2,04 | 3 | 41 | 0 | 46,1 | 46,1 |
-| E02c | P2 | hilos = 100 | 5 440 | 2,18 | 3 | 41 | 0 | 92,2 | 92,2 |
-| E02d | P2, P7 | hilos = 200 | 10 910 | 2,26 | 3 | 50 | 0 | 184,2 | 184,2 |
-| E03a | P3 | ramp-up = 1 s (200 usr × 1) | 600 | 4,62 | 5 | 84 | **1,17** | 133,3 | 131,7 |
-| E03b | P3 | ramp-up = 60 s (200 usr × 1) | 600 | 3,17 | 4 | 49 | 0 | 9,7 | 9,7 |
-| E04 | P4 | sin temporizador (50 usr) | 180 835 | 11,22 | 37 | 245 | **92,71** | 3 022 | 220 |
-| E05 | P5 | Ultimate TG 100→300→600→1000, sin pausas | 490 797 | 73,93 | 271 | 1 386 | **96,54** | 3 180 | 110 |
-| E06a | P6 | sync = 1 (100 usr × 3) | 900 | 3,27 | 5 | 44 | 0 | 49,6 | 49,6 |
-| E06b | P6 | sync = 100 (100 usr × 3) | 900 | 2,50 | 4 | 41 | 0 | 37,0 | 37,0 |
-| E07a | P7 | 50 usr sin pausas (repite E04) | 192 253 | 11,22 | 37 | 374 | **92,62** | 3 211 | 237 |
-| E07b | P7 | 300 usr sin pausas | 154 215 | 67,97 | 177 | 766 | **96,30** | 2 579 | 95 |
-| E08 | P8 | duración = 300 s (50 usr) | 14 640 | 2,12 | 3 | 38 | 0 | 49,0 | 49,0 |
-| E09a | P9 | csv = solo `general` | 2 719 | 2,15 | 3 | 47 | 0 | 46,1 | 46,1 |
-| E09b | P9 | csv = solo `vip` | 2 722 | 2,16 | 3 | 40 | 0 | 46,5 | 46,5 |
-| E10a | P10 | `Connection: keep-alive` (50 usr) | 2 730 | 2,64 | 4 | 41 | 0 | 46,4 | 46,4 |
-| E10b | P10 | `Connection: close` (50 usr) | 2 728 | 1,97 | 3 | 37 | 0 | 46,2 | 46,2 |
+**Qué cambia:** Número de hilos (20 → 500). Todo lo demás igual.  
+**Métrica elegida:** Throughput (Rendimiento), Media, p95, Máx y % Error.
 
----
-
-## P1 · ¿Cuál es el desempeño de referencia (línea base) del flujo de compra con carga baja?
-
-1. **Entender la pregunta.** No se compara nada todavía: se fija el punto de partida con el que se comparan las demás preguntas. Constantes: 10 usuarios, ramp-up de 10 s, 60 s, pausas de 0,5–1,5 s y CSV mixto.
-2. **Métrica.** Media y **p95** del tiempo de respuesta, % de errores y throughput. La media sola oculta picos, así que también miro el p95 y el máximo.
-3. **Escenario.** E01: Grupo de Hilos con 10 hilos, ramp-up de 10 s, bucle infinito limitado por una duración de 60 s y Temporizador Aleatorio Uniforme de 500 + 0–1000 ms.
-4. **Construcción.** Grupo de Hilos *Carga* con planificador; Temporizador Aleatorio Uniforme dentro del grupo; JSON Extractor y JSON Assertion para validar el flujo completo.
-5. **Ejecución.** `python run_experimentos.py E01` (no-GUI).
-6. **Análisis.** 547 peticiones, **media de 2,43 ms, p95 de 3 ms, máximo de 35 ms y 0 % de errores**, con 9,3 pet/s. Las tres operaciones cuestan prácticamente lo mismo (2,41–2,44 ms de media). El máximo de 35 ms es la **primera** petición de Tarifas (el resto de Tarifas queda en p99 = 4 ms): es el costo del arranque (primera conexión y calentamiento de la JVM de JMeter), no un comportamiento estable de la API.
-
-**Respuesta:** con 10 usuarios la API responde en unos 2–3 ms (p95 = 3 ms), sin errores y con
-≈ 0,93 pet/s por usuario, ritmo que fija el temporizador.
-**Limitación:** es un servidor local de juguete: los tiempos incluyen la pila TCP de *loopback* y no la red
-real ni una base de datos. La línea base solo vale para este equipo y no se puede extrapolar a producción.
-
----
-
-## P2 · ¿Escala el throughput de forma lineal al aumentar los usuarios concurrentes?
-
-1. **Entender.** Variable: **número de hilos** (10 → 25 → 50 → 100 → 200). Constantes: ramp-up de 10 s, 60 s y pausas de 0,5–1,5 s.
-2. **Métrica.** **Throughput** (pet/s), porque la pregunta es sobre capacidad de atender trabajo. Como control uso el p95: si el throughput sube pero el p95 se dispara, hay cola.
-3. **Escenario.** E01, E02a, E02b, E02c y E02d.
-4. **Construcción.** Mismo Grupo de Hilos; solo cambia `-Jhilos`.
-5. **Ejecución.** `python run_experimentos.py E02a E02b E02c E02d`.
-6. **Análisis.**
-
-| Usuarios | 10 | 25 | 50 | 100 | 200 |
-|---|---|---|---|---|---|
-| Throughput (pet/s) | 9,3 | 23,4 | 46,1 | 92,2 | 184,2 |
-| pet/s por usuario | 0,93 | 0,94 | 0,92 | 0,92 | 0,92 |
-| Media (ms) | 2,43 | 2,24 | 2,04 | 2,18 | 2,26 |
-| p95 (ms) | 3 | 3 | 3 | 3 | 3 |
-| CPU máx. de la API (% del equipo) | 0,3 | 0,7 | 0,9 | 1,4 | 2,3 |
-
-![P2](resultados/graficas/p2_throughput_vs_usuarios.png)
-
-**Respuesta:** sí, el throughput crece **lineal**: al duplicar los usuarios se duplica el throughput
-(≈ 0,92 pet/s por usuario), y el p95 se mantiene en 3 ms de 10 a 200 usuarios. No aparece la meseta de
-saturación (en Transactions per Second sería la línea que se aplana mientras siguen subiendo los
-usuarios). En este rango el throughput lo limita el tiempo de pensamiento (≈ 1 s por petición), no la API.
-**Limitación:** como el p95 no se movió, este rango **no** permite saber dónde está el límite. Que escale
-linealmente hasta 200 usuarios con pausas no dice nada de 2 000 usuarios ni de usuarios sin pausas (eso lo
-responden P4 y P5).
-
----
-
-## P3 · ¿Afecta el periodo de subida (ramp-up) al tiempo de respuesta y a los errores con la misma cantidad de usuarios?
-
-1. **Entender.** Variable: **ramp-up** (1 s vs 60 s). Constantes: 200 usuarios que recorren el flujo **una vez** (bucle = 1) y pausas de 0,5–1,5 s. Mismo total de peticiones (600).
-2. **Métrica.** **Máximo, p95/p99 y % de errores**, porque una llegada en ráfaga afecta las colas, que se ven en los extremos y no en la media.
-3. **Escenario.** E03a (ramp-up de 1 s) vs E03b (ramp-up de 60 s).
-4. **Construcción.** Grupo de Hilos con `-Jbucles=1 -Jhilos=200` y `-Jrampup=1` o `-Jrampup=60`.
-5. **Ejecución.** `python run_experimentos.py E03a E03b`.
-6. **Análisis.**
-
-| | Ramp-up 1 s (E03a) | Ramp-up 60 s (E03b) |
+| Escenario | E01a | E01b |
 |---|---|---|
-| Errores | **7 de 600 (1,17 %)**, todos en Tarifas: `HttpHostConnectException` (conexión rechazada) | 0 |
-| Tarifas: media / p95 / p99 / máx (ms, exitosas) | 6,56 / 23 / 84 / 84 | 3,25 / 4 / 5 / 49 |
-| Selección: p95 / máx (ms) | 4 / 6 | 4 / 7 |
-| Throughput | 133 pet/s (todo en 5 s) | 9,7 pet/s |
+| Tipo de hilo | Grupo de Hilos estándar | Grupo de Hilos estándar |
+| Hilos | 20 | 500 |
+| Subida (ramp-up) | 10 s | 10 s |
+| Duración | 60 s (bucle infinito con planificador) | 60 s (bucle infinito con planificador) |
+| Temporizador | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
 
-**Respuesta:** sí. Con los **mismos 200 usuarios** y las mismas 600 peticiones, si todos llegan en 1 s, la
-primera petición (Tarifas) recibe una ráfaga de unas 200 conexiones simultáneas: **7 son rechazadas** y el
-p99 sube de 5 a 84 ms. Repartidos en 60 s no hay ningún error. Lo que afecta a la API es la **tasa de llegada
-simultánea**, no el total de usuarios. Las peticiones siguientes (Selección y Pago) ya no sufren, porque el
-temporizador desincroniza a los usuarios.
-**Limitación:** es una sola repetición con 600 muestras: 7 errores son pocos para estimar con precisión la
-tasa de rechazo. El rechazo depende de cómo Windows maneja la cola de aceptación (`listen backlog`) del
-servidor; en Linux la ráfaga se encolaría o reintentaría de otra forma, así que el % exacto no se puede
-trasladar a otro sistema operativo.
+**Escenario configurado en JMeter:**
 
----
+![E01b: Grupo de Hilos con 500 hilos, subida de 10 s y 60 s de duración.](resultados/capturas/gui/E01b_01.png)
 
-## P4 · ¿Qué efecto tiene el tiempo de pensamiento (temporizador) sobre el throughput, la latencia y los errores?
+**Resultados observados:**
 
-1. **Entender.** Variable: **temporizador** (500 + 0–1000 ms vs 0 ms). Constantes: 50 usuarios, ramp-up de 10 s y 60 s.
-2. **Métrica.** **Throughput total vs exitoso y % de errores**, además del p95 de las respuestas exitosas.
-3. **Escenario.** E02b (con pausas) vs E04 (`-Jpausa_min=0 -Jpausa_rango=0`).
-4. **Construcción.** El Temporizador Aleatorio Uniforme toma sus valores de propiedades, así que "quitarlo" equivale a ponerlo en 0 sin tocar el plan.
-5. **Ejecución.** `python run_experimentos.py E04` (E02b ya existe).
-6. **Análisis.**
-
-| 50 usuarios | Con pausas (E02b) | Sin pausas (E04) |
+| Métrica | 20 usuarios (E01a) | 500 usuarios (E01b) |
 |---|---|---|
-| Peticiones enviadas/s | 46 | 3 022 |
-| **Peticiones exitosas/s** | **46** | **220** |
-| % Error | 0 % | **92,71 %** |
-| Media / p95 de las exitosas (ms) | 2,04 / 3 | 25,7 / 71 |
-| CPU del equipo, media / máx. | 12,6 % / 47 % | 64,8 % / **97,4 %** |
-| CPU de JMeter, media / máx. | 1,4 % / 24 % | 38,8 % / 59,7 % |
+| Muestras | 1 100 | 27 243 |
+| Throughput | 18,8 pet/s | 458,5 pet/s |
+| Media | 2,39 ms | 3,68 ms |
+| p95 | 3 ms | 8 ms |
+| Máx | 52 ms | 54 ms |
+| % Error | 0 % | 1,58 % |
+| CPU del equipo (media / máx.) | 12 % / 25 % | 36 % / 72 % |
 
-Errores en E04: 163 303 `HttpHostConnectException` (conexión rechazada) en las tres peticiones y 4 345
-`404 Not Found` en Pago. Los 404 son una **cascada**: cuando Selección falla, el extractor deja
-`num_reserva_not_found` y el pago de esa reserva inexistente responde 404.
+![Reporte HTML de E01a (20 usuarios).](resultados/capturas/reportes/E01a_dashboard.png)
+![Reporte HTML de E01b (500 usuarios): aparecen conexiones rechazadas y 404 en Pago.](resultados/capturas/reportes/E01b_dashboard.png)
 
-![P4/P7](resultados/graficas/p4_p7_pausas_errores.png)
+![Comparación de throughput, media y p95.](resultados/graficas/p1_20_vs_500.png)
 
-**Respuesta:** el temporizador es lo que hace que 50 hilos se comporten como 50 *personas*. Sin pausas, los
-mismos 50 hilos generan unas 65 veces más intentos por segundo. La API solo completa unas **220 pet/s**,
-rechaza el resto (92,7 % de errores) y el p95 de las respuestas correctas pasa de 3 a 71 ms. Quitar el
-temporizador no mide "lo mismo más rápido": convierte una prueba de carga en una de estrés.
-**Limitación:** sin pausas, JMeter usó en promedio el 39 % del CPU del equipo (pico del 60 %) y el equipo
-llegó al 97 %, así que parte de la latencia medida es del **generador**. Con JMeter y la API en el mismo
-computador no puedo separar cuánto de los 71 ms es de la API. Además, el rechazo se debe a la cola de 5
-conexiones de `ThreadingHTTPServer` en Windows, un límite de configuración más que de cómputo: la API solo
-usó un 2,4 % del CPU del equipo.
+**Respuesta:**
+
+Cambian ambos. El throughput se multiplicó por 24,4 con 25 veces más usuarios (18,8 → 458,5 pet/s), casi proporcional, porque cada usuario hace en promedio ≈ 0,93 peticiones por segundo por el temporizador. Pero el tiempo de respuesta también subió: la media un 54 % (2,39 → 3,68 ms) y el p95 casi se triplicó (3 → 8 ms).
+
+Con 500 usuarios aparecieron errores por primera vez (1,58 %). Fueron 333 conexiones rechazadas (HttpHostConnectException) porque la cola de conexiones de la API se llenó en algunos momentos, y 97 respuestas 404 en Pago, que son consecuencia: si la Selección falla, no hay reserva que pagar. La API sigue atendiendo, pero ya muestra cola.
+
+**Qué no pude medir / qué cambió el resultado:** JMeter y la API comparten el equipo (CPU hasta el 72 %), así que parte del aumento del tiempo puede ser del generador. Es una sola ejecución por número de usuarios y solo medí dos puntos (20 y 500); los intermedios están en P4.
 
 ---
 
-## P5 · ¿A partir de qué carga se degrada la API? (prueba de estrés por escalones)
+## P2 · CARGA: ¿Qué pasaría si el ramp-up pasa de 1 segundo a 60 segundos? ¿Cambia el pico inicial del reporte?
 
-1. **Entender.** Variable: **hilos activos en el tiempo** (escalones). Constantes: sin pausas y el mismo flujo.
-2. **Métrica.** **Exitosas/s, % de errores y p95 de las exitosas por ventana de 10 s**, junto con el **CPU de la API y de JMeter**. En estrés lo que importa es la *forma* de la curva y el recurso que se agota.
-3. **Escenario.** E05 con **jp@gc Ultimate Thread Group**: +100 hilos en t = 0 s, +200 en t = 30 s, +300 en t = 60 s y +400 en t = 90 s (100 → 300 → 600 → 1 000), subida de 10 s por escalón, mantenidos hasta t ≈ 150 s y bajada de 5 s. El Grupo de Hilos estándar se apaga con `-Jhilos=0`.
-4. **Construcción.** Las filas del Ultimate Thread Group leen la cantidad de hilos de `${__P(utg1,0)}` … `${__P(utg4,0)}`: en los demás escenarios valen 0 y el grupo no arranca.
-5. **Ejecución.** `python run_experimentos.py E05`.
-6. **Análisis.**
+**Qué cambia:** Periodo de subida (1 s → 60 s), con los mismos 200 usuarios y 120 s.  
+**Métrica elegida:** Máx y p95 al inicio de la prueba (gráfica Response Times Over Time) y % Error.
 
-| Ventana | Hilos | Enviadas/s | Exitosas/s | % Error | p95 exitosas (ms) |
-|---|---|---|---|---|---|
-| 0–10 s | 100 | 1 308 | 110 | 91,6 | 144 |
-| 20–30 s | 120 | 1 662 | 44 | 97,4 | 420 |
-| 40–50 s | 300 | 3 548 | 105 | 97,0 | 217 |
-| 70–80 s | 600 | 4 635 | **186** (máximo) | 96,0 | 131 |
-| 90–100 s | 1 000 | 4 132 | 143 | 96,5 | 185 |
-| 140–150 s | 1 000 | 2 700 | **66** | 97,5 | **456** |
-
-Recursos: CPU de la API, media del 1,0 % y máximo del 3,8 % del equipo; memoria de la API de 24,5 a 26,0 MB.
-CPU de **JMeter**, media del 52,5 % y máximo del **79 %**; CPU del equipo, máximo del 95,6 %; memoria de
-JMeter de hasta 979 MB.
-
-![P5](resultados/graficas/p5_estres_utg.png)
-![P5 CPU](resultados/graficas/p5_recursos_cpu.png)
-
-**Respuesta:** con criterio de errores, el punto de quiebre está **antes de 100 hilos sin pausas**: desde
-el primer escalón el error supera el 90 %. En P4, 50 hilos sin pausas ya daban un 92,7 %. El trabajo útil
-nunca superó unas **190 pet/s** en este escenario (y 237 pet/s en el mejor de todos, E07a). Con 1 000 hilos el
-throughput útil **cae** a 66 pet/s mientras el p95 sube a 456 ms: más carga produce **menos** trabajo útil, la
-señal típica de saturación. El recurso que se agota **no es el CPU de la API** (≤ 3,8 %): es su capacidad
-de aceptar conexiones (cola de 5 en `ThreadingHTTPServer`, un hilo por conexión, HTTP/1.0 sin reutilización).
-**Limitación:** el equipo quedó saturado por el **generador** (JMeter al 79 % y el equipo al 96 %), así que
-la caída final puede venir de JMeter y no solo de la API. Las ventanas no son monótonas (con 120 hilos hubo
-menos éxito que con 600), lo que indica ruido del sistema operativo. Haría falta repetir el escenario y poner
-el generador en otra máquina. Tampoco medí qué pasa si se corrige la cola de conexiones.
-
----
-
-## P6 · ¿Soporta la API selecciones exactamente simultáneas sin errores ni reservas inconsistentes?
-
-1. **Entender.** Variable: **Temporizador Sincronizado** (grupo de 1 = sin sincronizar vs grupo de 100). Constantes: 100 usuarios, 3 iteraciones cada uno, ramp-up de 10 s y pausas de 0,5–1,5 s.
-2. **Métrica.** **Máximo y p95 de `SeleccionTarifaYCantidad`, % de errores** y, como integridad, que **cada pago responda `APROBADO`** (sin reservas perdidas ni duplicadas).
-3. **Escenario.** E06a (`-Jsync=1`) vs E06b (`-Jsync=100`): JMeter retiene los hilos y los libera de a 100 al mismo tiempo sobre Selección (timeout de 5 s).
-4. **Construcción.** Temporizador Sincronizado como hijo de la petición de Selección; el JSON Assertion del pago verifica la integridad.
-5. **Ejecución.** `python run_experimentos.py E06a E06b`.
-6. **Análisis.**
-
-| 100 usuarios × 3 | Sin sincronizar (E06a) | Sincronizados de a 100 (E06b) |
+| Escenario | E02a | E02b |
 |---|---|---|
-| Selección: media / p95 / **máx** (ms) | 3,25 / 5 / **7** | 2,59 / 4 / **14** |
-| % Error (todo el flujo) | 0 % | 0 % |
-| Pagos `APROBADO` | 300 / 300 | 300 / 300 |
-| Duración / throughput | 18 s / 49,6 pet/s | 24 s / 37,0 pet/s |
+| Hilos | 200 | 200 |
+| Subida (ramp-up) | 1 s | 60 s |
+| Duración | 120 s | 120 s |
+| Temporizador | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
 
-**Respuesta:** sí. Al liberar 100 selecciones en el mismo instante, el peor tiempo de Selección **se
-duplicó (7 → 14 ms)**, pero no hubo errores y los 300 pagos quedaron aprobados: el `uuid` y el `lock` de la
-API evitan reservas duplicadas o perdidas. La media bajó y el throughput cayó a 37 pet/s, pero eso lo
-explica la **espera del propio temporizador** (los hilos se quedan quietos hasta completar el grupo), no la
-API.
-**Limitación:** el temporizador sincroniza el *envío* en JMeter, no garantiza que las 100 peticiones lleguen
-a la API en el mismo microsegundo. En P3, 200 llegadas en 1 s sí produjeron rechazos, así que no puedo
-afirmar cuál es el máximo de simultaneidad sin errores (está entre 100 sincronizadas y 200 en ráfaga). Una
-sola repetición de 300 selecciones por escenario.
+**Escenario configurado en JMeter:**
+
+![E02a: 200 hilos con subida de 1 s.](resultados/capturas/gui/E02a_01.png)
+![E02b: 200 hilos con subida de 60 s.](resultados/capturas/gui/E02b_01.png)
+
+**Resultados observados:**
+
+| Métrica | Ramp-up 1 s (E02a) | Ramp-up 60 s (E02b) |
+|---|---|---|
+| Primer segundo: peticiones | 169 | 8 |
+| Primer segundo: media / p95 / máx | 10,0 / 63 / 95 ms | 17,0 / 48 / 48 ms (8 peticiones) |
+| Primeros 10 s: errores | 10 (conexión rechazada) | 0 |
+| Resto (10–120 s): p95 / máx | 5 / 48 ms | 3 / 13 ms |
+| Total: media / p95 / máx | 3,15 / 6 / 95 ms | 2,32 / 3 / 48 ms |
+| Total: % Error | 0,26 % | 0,01 % |
+
+![Response Times Over Time con ramp-up de 1 s: pico de 36 ms de media en el primer segundo.](resultados/capturas/reportes/E02a_overtime.png)
+![Response Times Over Time con ramp-up de 60 s: sin pico inicial marcado.](resultados/capturas/reportes/E02b_overtime.png)
+
+![Máximo y p95 por ventanas de 5 s, y los hilos activos.](resultados/graficas/p2_pico_inicial.png)
+
+**Respuesta:**
+
+Sí cambia. Con ramp-up de 1 s los 200 usuarios llegan casi juntos: en el primer segundo hubo 169 peticiones, el máximo llegó a 95 ms, el p95 de ese segundo fue de 63 ms y 10 conexiones fueron rechazadas. Con ramp-up de 60 s el primer segundo tuvo solo 8 peticiones: el máximo de 48 ms es el calentamiento de la primera petición (primera conexión), no una cola, y no hubo errores.
+
+Además, con la subida de 1 s los usuarios quedan «sincronizados» y llegan en oleadas durante toda la prueba: el máximo después del inicio siguió en 48 ms, contra 13 ms con 60 s. Una subida gradual reparte la llegada y evita el pico; una subida brusca crea un pico inicial y errores aunque el número de usuarios sea el mismo.
+
+**Qué no pude medir / qué cambió el resultado:** El pico de la primera petición (calentamiento de JMeter y de la primera conexión) aparece en los dos casos y no lo puedo separar del todo del efecto del ramp-up. Fue una sola ejecución de cada uno: 10 errores son pocos para calcular un porcentaje preciso.
 
 ---
 
-## P7 · ¿Qué endpoint del flujo se degrada más cuando la API se satura?
+## P3 · CARGA: ¿Qué pasaría si quito los temporizadores? ¿Cuánto sube el throughput y qué significa eso para la prueba?
 
-1. **Entender.** Variable: **hilos sin pausas** (50 vs 300). Constante: el flujo Tarifas → Selección → Pago. La pregunta compara **etiquetas** dentro de cada ejecución.
-2. **Métrica.** **Media, p95 y p99 por etiqueta, solo sobre respuestas exitosas**, y el % de éxito por etiqueta. Como control, E02d (200 usuarios con pausas, sin saturación).
-3. **Escenario.** E07a (50 hilos sin pausas; repite la configuración de E04) y E07b (300 hilos sin pausas).
-4. **Construcción.** Mismo plan; el Reporte resumen y el `.jtl` separan las métricas por etiqueta.
-5. **Ejecución.** `python run_experimentos.py E07a E07b`.
-6. **Análisis.** (ms, solo exitosas)
+**Qué cambia:** Temporizador (500–1500 ms → 0 ms), con 20 usuarios.  
+**Métrica elegida:** Throughput total y exitoso (throughput × (1 − %error)), % Error, Media y p95.
 
-| Etiqueta | E02d (200 con pausas) media / p95 | E07a (50 sin pausas) media / p95 / p99 · % éxito | E07b (300 sin pausas) media / p95 / p99 · % éxito |
+| Escenario | E01a (con temporizador) | E03 (sin temporizador) |
+|---|---|---|
+| Hilos | 20 | 20 |
+| Subida (ramp-up) | 10 s | 10 s |
+| Duración | 60 s | 60 s |
+| Temporizador | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) | Mismo elemento con 0 ms + 0 ms (sin pausas) |
+
+**Escenario configurado en JMeter:**
+
+![E03: Temporizador Aleatorio Uniforme en 0 ms (sin pausas).](resultados/capturas/gui/E03_02.png)
+
+**Resultados observados:**
+
+| Métrica | Con temporizador (E01a) | Sin temporizador (E03) |
+|---|---|---|
+| Muestras | 1 100 | 90 598 |
+| Throughput (todas) | 18,8 pet/s | 1 513,8 pet/s (×80) |
+| Throughput exitoso | 18,8 pet/s | 329,6 pet/s (×17,5) |
+| % Error | 0 % | 78,23 % |
+| Media / p95 | 2,39 / 3 ms | 11,66 / 34 ms |
+| CPU de JMeter (media / máx.) | 1,2 % / 16 % | 29,7 % / 64 % |
+| CPU del equipo (máx.) | 25 % | 81 % |
+
+![Reporte de E03: 78 % de errores por conexiones rechazadas y 404 en cascada en Pago.](resultados/capturas/reportes/E03_dashboard.png)
+
+![Peticiones exitosas vs fallidas por segundo.](resultados/graficas/p3_temporizador.png)
+
+**Respuesta:**
+
+El throughput sube unas 80 veces (18,8 → 1 513,8 pet/s), pero ese número engaña: el 78 % fueron errores. Sin pausas, cada hilo dispara una petición apenas recibe la anterior, así que 20 hilos ya no representan 20 personas sino un bombardeo continuo. La API solo logró completar unas 330 peticiones por segundo (×17,5) y rechazó el resto; el p95 de las correctas subió a 45 ms.
+
+Para la prueba significa que deja de ser una prueba de carga realista y se vuelve una prueba de estrés: mide cuánto aguanta la API (y el propio JMeter, que llegó al 64 % del CPU), no cómo se comporta con usuarios reales. Los temporizadores son los que modelan el tiempo que una persona tarda entre clic y clic.
+
+**Qué no pude medir / qué cambió el resultado:** Sin pausas el generador consume buena parte del CPU, así que el límite de unas 330 pet/s exitosas es del conjunto JMeter + API en este equipo, no solo de la API. El 404 de Pago infla el porcentaje de error de esa petición.
+
+---
+
+## P4 · ESTRÉS: ¿Qué pasaría si escalono de 50 a 100, 250 y 500 usuarios? ¿En qué punto deja de crecer el throughput?
+
+**Qué cambia:** Usuarios activos en escalones durante la misma prueba.  
+**Métrica elegida:** Throughput por segundo (Hits per Second) frente a hilos activos; errores y p95.
+
+| Elemento | Configuración (E04) |
+|---|---|
+| Tipo de hilo | jp@gc Ultimate Thread Group |
+| Escalón 1 | +50 hilos en t = 0 s (total 50), subida de 10 s |
+| Escalón 2 | +50 hilos en t = 30 s (total 100), subida de 10 s |
+| Escalón 3 | +150 hilos en t = 60 s (total 250), subida de 10 s |
+| Escalón 4 | +250 hilos en t = 90 s (total 500), subida de 10 s |
+| Mantener / bajada | Todos hasta t ≈ 150 s; bajada de 5 s |
+| Temporizador | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
+
+**Escenario configurado en JMeter:**
+
+![Ultimate Thread Group con los cuatro escalones y la gráfica de usuarios esperados.](resultados/capturas/gui/E04_01.png)
+![Temporizador del grupo de estrés.](resultados/capturas/gui/E04_02.png)
+
+**Resultados observados:**
+
+| Escalón | Hilos | Peticiones exitosas por segundo | Errores |
 |---|---|---|---|
-| Tarifas | 2,27 / 3 | 25,2 / 78 / 145 · 9,5 % | 66,2 / 205 / 423 · 4,4 % |
-| SeleccionTarifaYCantidad | 2,26 / 3 | 25,2 / 76 / 145 · 9,9 % | 67,4 / 220 / 448 · 4,5 % |
-| Pago | 2,26 / 3 | 20,1 / 64 / 131 · **2,8 %** | 61,5 / 207 / 386 · **2,2 %** |
+| 1 | 50 | ≈ 49–51 | 0 |
+| 2 | 100 | ≈ 98–101 | 0 |
+| 3 | 250 | ≈ 249–251 | 0 |
+| 4 (primeros 20 s) | 500 | ≈ 500 | 1–3 por cada 10 s |
+| 4 (siguientes 30 s) | 500 | 477 → 491 → 461 → 354 | 161, 275 y 361 conexiones rechazadas; 831 BindException en los últimos 10 s |
+| Total |  | 40 277 muestras; throughput 262 pet/s | 6,44 % |
 
-**Respuesta:** **ningún endpoint es el cuello de botella por sí mismo**. Sin saturación los tres cuestan lo
-mismo (2,26–2,27 ms), y al pasar de 50 a 300 hilos los tres se degradan casi igual (p95 de unos 70 a unos
-210 ms). El cuello está en lo que comparten: **aceptar la conexión TCP**. El que más "falla" es **Pago**
-(solo un 2–3 % de éxito), pero porque depende de que Selección haya funcionado: un error en Selección se
-propaga como 404 en Pago. Así que el % de error de Pago **sobrestima** su fragilidad.
-Repetibilidad: E07a repite la configuración de E04 y dio 92,62 % vs 92,71 % de error y 237 vs 220
-exitosas/s, una diferencia de alrededor del 7 % en throughput útil entre corridas idénticas.
-**Limitación:** con más del 90 % de errores, las latencias "exitosas" son una muestra sesgada (solo las que
-entraron en la cola) y además están contaminadas por la CPU de JMeter (hasta 77 % en E07b). Para atribuir
-costo por endpoint en saturación haría falta un generador en otra máquina y repetir cada escenario varias
-veces.
+![Hits per Second del reporte: los cuatro escalones y la caída al final.](resultados/capturas/reportes/E04_throughput.png)
+![Statistics y Errors de E04.](resultados/capturas/reportes/E04_dashboard.png)
 
----
+![Hilos, peticiones exitosas y fallidas, y p95 por ventanas de 5 s.](resultados/graficas/p4_escalones.png)
 
-## P8 · ¿Se mantiene estable la API durante una carga sostenida (sin degradación ni fuga de memoria)?
+**Respuesta:**
 
-1. **Entender.** Variable: **duración** (60 s vs 300 s). Constantes: 50 usuarios con pausas.
-2. **Métrica.** **p95 y media por ventana de tiempo** (tendencia, no un promedio global), **memoria de la API** al inicio y al final (métrica de hardware) y % de errores.
-3. **Escenario.** E02b (60 s) vs E08 (`-Jduracion=300`).
-4. **Construcción.** Grupo de Hilos con planificador de 300 s y el monitor de recursos (psutil) en paralelo.
-5. **Ejecución.** `python run_experimentos.py E08`.
-6. **Análisis.**
+Hasta 250 usuarios el throughput creció en línea recta, cerca de 1 petición por segundo por usuario (50 → 100 → 250 pet/s), sin errores y con el p95 en 3–4 ms. En el escalón de 500 subió hasta unas 500 pet/s, pero ahí dejó de crecer: tras unos 20 s sostenidos empezaron las conexiones rechazadas, el throughput exitoso bajó a 461 y luego a 354 pet/s, y el p95 subió a 15 ms.
 
-| Minuto | 0–1 | 1–2 | 2–3 | 3–4 | 4–5 |
-|---|---|---|---|---|---|
-| Throughput (pet/s) | 46,3 | 49,7 | 49,9 | 49,5 | 48,6 |
-| Media (ms) | 2,4 | 2,4 | 1,9 | 2,0 | 1,9 |
-| p95 (ms) | 3 | 3 | 3 | 3 | 3 |
+El punto de quiebre en este equipo está entre 250 y 500 usuarios, alrededor de 500 pet/s. No es por CPU (la API usó como máximo el 5,6 % del equipo), sino por las conexiones: la API abre una conexión TCP por petición y su cola de aceptación es pequeña. Al final también se agotaron los puertos del equipo (BindException).
 
-Total E08: 14 640 peticiones, 0 % de errores, media de 2,12 ms y p95 de 3 ms, igual que E02b en 60 s (2,04 ms y
-3 ms). Memoria de la API: **24,4 MB → 24,8 MB** en 5 min. Memoria de JMeter: 133 MB → 753 MB.
-
-![P8](resultados/graficas/p8_estabilidad.png)
-
-**Respuesta:** sí. Durante 5 minutos el p95 se mantuvo en 3 ms en todas las ventanas, el throughput fue
-estable (unas 49 pet/s) y la memoria de la API prácticamente no creció (+0,4 MB). No hay señales de
-degradación ni de fuga en el camino feliz. El que sí acumula memoria es **JMeter** (×5,7), por los listeners
-que guardan resultados: otra razón para usar no-GUI y pocos listeners en pruebas largas.
-**Limitación:** 5 minutos no es una prueba de resistencia real (*soak*), que suele durar horas. Además, todas
-las reservas se pagan y la API las borra (`reservas.pop`), así que **no ejercité el caso de reservas que
-nunca se pagan**, que se quedarían para siempre en el diccionario en memoria y sí serían una fuga potencial.
+**Qué no pude medir / qué cambió el resultado:** El escalón de 500 duró unos 50 s, así que no sé si se habría estabilizado o seguido cayendo. El agotamiento de puertos es un límite del lado de JMeter que aparece porque todo corre en el mismo equipo; con la API en un servidor dedicado el punto de quiebre podría ser otro.
 
 ---
 
-## P9 · ¿Cambia el tiempo de respuesta según la tarifa comprada?
+## P5 · ESTRÉS: ¿Qué pasaría si la prueba dura 10 minutos en lugar de 1? ¿El tiempo de respuesta se mantiene o sube con el tiempo?
 
-1. **Entender.** Variable: **tarifa** (CSV solo `general` vs solo `vip`, ambos con cantidad 2). Constantes: 50 usuarios, pausas y 60 s.
-2. **Métrica.** **Media y p95** del flujo, y throughput como control de que la carga fue la misma.
-3. **Escenario.** E09a (`-Jcsv=datos_general.csv`) vs E09b (`-Jcsv=datos_vip.csv`).
-4. **Construcción.** El CSV Data Set toma el archivo de `${__P(csv,datos.csv)}`.
-5. **Ejecución.** `python run_experimentos.py E09a E09b`.
-6. **Análisis.**
+**Qué cambia:** Duración (60 s → 600 s), con 50 usuarios.  
+**Métrica elegida:** Media y p95 por minuto (Response Times Over Time) y memoria de la API.
 
-| | Solo general (E09a) | Solo vip (E09b) |
+| Escenario | E05a | E05b |
 |---|---|---|
-| Muestras | 2 719 | 2 722 |
-| Media / p95 / máx (ms) | 2,15 / 3 / 47 | 2,16 / 3 / 40 |
-| Throughput | 46,1 pet/s | 46,5 pet/s |
-| % Error | 0 % | 0 % |
+| Hilos | 50 | 50 |
+| Subida (ramp-up) | 10 s | 10 s |
+| Duración | 60 s | 600 s (10 min) |
+| Temporizador | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
 
-**Respuesta:** no. La diferencia es de 0,01 ms en la media y el p95 es idéntico, dentro del ruido. Tiene
-sentido con el código: el total es `precio × cantidad` en tiempo constante para cualquier tarifa.
-**Limitación:** la API no tiene inventario ni topes por localidad. En un sistema real, una tarifa escasa
-(VIP) podría tener contención, colas o bloqueos que esta simulación no modela. Tampoco varié la cantidad, que
-es otra variable y se probaría por separado.
+**Escenario configurado en JMeter:**
 
----
+![E05b: 50 hilos durante 600 s.](resultados/capturas/gui/E05b_01.png)
 
-## P10 · ¿Mejora el rendimiento si JMeter reutiliza conexiones (keep-alive) frente a cerrarlas en cada petición?
+**Resultados observados:**
 
-1. **Entender.** Variable: **cabecera `Connection`** (`keep-alive` vs `close`), enviada desde el Gestor de Cabecera HTTP. Constantes: 50 usuarios, pausas y 60 s.
-2. **Métrica.** **Tiempo de conexión (`Connect`)** medio, media y p95 de respuesta.
-3. **Escenario.** E10a (`-Jconexion=keep-alive`) vs E10b (`-Jconexion=close`). Antes revisé las cabeceras con curl: la API responde `HTTP/1.0 200 OK`, es decir, **cierra la conexión después de cada respuesta**.
-4. **Construcción.** Gestor de Cabecera HTTP con `Connection: ${__P(conexion,keep-alive)}`.
-5. **Ejecución.** `python run_experimentos.py E10a E10b`. Una primera versión sin pausas quedó dominada por el 92 % de errores de saturación y no aislaba la variable, así que la repetí con pausas.
-6. **Análisis.**
-
-| | keep-alive (E10a) | close (E10b) |
+| Métrica | 1 minuto (E05a) | 10 minutos (E05b) |
 |---|---|---|
-| Connect medio (ms) | 1,15 | 0,79 |
-| Media / p95 / máx (ms) | 2,64 / 4 / 41 | 1,97 / 3 / 37 |
-| Throughput | 46,4 pet/s | 46,2 pet/s |
+| Muestras | 2 724 | 29 694 |
+| Throughput | 46,0 pet/s | 49,6 pet/s |
+| Media / p95 / máx | 2,22 / 3 / 49 ms | 2,05 / 3 / 35 ms |
 | % Error | 0 % | 0 % |
+| Media por minuto (E05b) |  | 2,36 · 2,10 · 1,99 · 1,93 · 1,90 · 2,06 · 2,05 · 1,90 · 2,06 · 2,16 ms |
+| p95 por minuto (E05b) |  | 3 ms en los 10 minutos |
+| Memoria de la API | 24,4 → 24,4 MB | 24,4 → 24,5 MB |
 
-**Respuesta:** no hay mejora, y no podía haberla: como la API habla HTTP/1.0 y cierra cada conexión, JMeter
-abre una conexión TCP nueva en **todas** las peticiones (Connect > 0 en ambos casos), pida keep-alive o no.
-La diferencia de 0,7 ms va en sentido contrario y es ruido: durante E10a el equipo tuvo un pico de CPU del
-82 % por otros procesos, frente al 40 % en E10b. Reutilizar conexiones solo serviría si el servidor
-soportara HTTP/1.1 persistente. Además, esto explica parte de la saturación de P4/P5: cada petición paga
-un *handshake* y ocupa la pequeña cola de aceptación.
-**Limitación:** una sola corrida por variante y diferencias por debajo de 1 ms, en el orden del ruido del
-sistema operativo. No puedo concluir nada sobre keep-alive en general; solo que **en esta API** no tiene
-efecto.
+![Response Times Over Time de 10 minutos: línea plana.](resultados/capturas/reportes/E05b_overtime.png)
+
+![Media y p95 por ventanas de 30 s, y memoria de la API.](resultados/graficas/p5_10_minutos.png)
+
+**Respuesta:**
+
+El tiempo de respuesta se mantiene. En los 10 minutos la media estuvo entre 1,90 y 2,36 ms por minuto y el p95 fue de 3 ms en todos; el minuto más lento fue el primero, por el calentamiento, no el último. La memoria de la API prácticamente no cambió (24,4 → 24,5 MB): no hay señales de degradación ni de que algo se acumule con este nivel de carga.
+
+**Qué no pude medir / qué cambió el resultado:** 10 minutos con 50 usuarios es corto para una prueba de resistencia real (el ejemplo de la guía habla de 200 usuarios durante 30 minutos). Todas las reservas se pagan y la API las borra; no probé reservas que nunca se pagan, que quedarían en memoria indefinidamente. Qué cambió el resultado: la primera ejecución de E05a tuvo un 0,15 % de errores porque arrancó con los puertos de la prueba anterior todavía ocupados; con la espera entre escenarios, 0 %.
 
 ---
 
-## Conclusiones generales
+## P6 · ESTRÉS: ¿Qué pasaría si mido /api/tarifas (solo lectura) y /api/seleccion (crea reservas) con la misma carga? ¿Cuál cuesta más?
 
-- Con usuarios "humanos" (pausas de 0,5–1,5 s) la API atiende **hasta 200 usuarios (184 pet/s) con p95 = 3 ms y 0 % de errores**, y escala lineal (P2), estable durante 5 minutos (P8).
-- El límite aparece por **tasa de llegada**, no por cantidad de usuarios: una ráfaga de 200 en 1 s ya produce rechazos (P3), y 50 usuarios sin pausas saturan la API, que completa unas 220–237 pet/s y rechaza más del 92 % (P4 y P7).
-- El recurso agotado es la **aceptación de conexiones** (cola de 5, HTTP/1.0 sin keep-alive), no el CPU de la API (≤ 4 % del equipo) (P5 y P10).
-- En los escenarios saturados el **generador (JMeter) consumió más CPU que la API** (hasta el 79 % del equipo): las latencias en saturación miden a los dos juntos. Es la principal limitación de todo el experimento.
-- El pipeline de GitHub Actions comprueba que el flujo corre de principio a fin sin errores en cada commit, pero **no** sirve para medir capacidad, porque la máquina es compartida y no hay PerfMon. La medición fina se hizo aquí, en local.
+**Qué cambia:** La petición (se comparan las filas Tarifas y SeleccionTarifaYCantidad de la misma ejecución).  
+**Métrica elegida:** Costo = columna Media del reporte (ms) de cada petición; p95 como apoyo.
 
-## Preguntas de sustentación (respuestas cortas)
+| Elemento | Configuración (E06) |
+|---|---|
+| Hilos | 100 |
+| Subida (ramp-up) | 10 s |
+| Duración | 60 s |
+| Temporizador | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
+| Misma carga | Cada usuario hace Tarifas y luego Selección: 1 851 y 1 815 peticiones |
 
-- **¿Por qué 200 usuarios virtuales en el pipeline?** Es el escenario que pide el taller para comprobar que la carga corre de principio a fin: 200 usuarios en 300 s (≈ 0,67 usuarios nuevos/s), con pausas, generan unas 2 pet/s. En P2 vi que esta API soporta 184 pet/s con pausas, así que el escenario no la satura: es una prueba de humo de rendimiento y no mide capacidad.
-- **¿Por qué Throughput en lugar de tiempo medio?** Depende de la pregunta. Para "¿escala?" (P2) la métrica es throughput, porque mide trabajo completado por segundo. Para "¿se degrada?" (P3, P5, P7) uso p95/p99/máximo, porque la media oculta picos: en E03a la media fue de 4,6 ms y el p99 de Tarifas de 84 ms. Y si hay errores, solo cuenta el throughput **exitoso**: el de E04 era de 3 022 pet/s, pero solo 220 fueron útiles.
-- **¿Qué significa que aumente el % de errores?** Que la API dejó de atender parte de la demanda. Aquí fueron conexiones rechazadas (`HttpHostConnectException`) por la cola de aceptación llena, más 404 en cascada en Pago. Un % de errores creciente con un throughput útil plano o decreciente es la señal de saturación.
-- **¿Cómo sabes que la API estaba lista antes de la prueba?** En el pipeline, un bucle hace `curl -sf http://127.0.0.1:8080/api/salud` hasta 30 veces cada 2 s y solo continúa cuando responde `{"estado": "OK"}`; si no responde, el job falla. En local, `run_experimentos.py` hace lo mismo antes de cada escenario.
-- **¿Por qué modo no-GUI para medir?** Porque la GUI y listeners como el Árbol de Resultados consumen CPU y memoria del mismo equipo que corre la API. Incluso en no-GUI, JMeter llegó al 79 % del CPU en estrés y su memoria creció de 133 a 753 MB en 5 minutos (P8). La GUI la usé solo para depurar con pocos hilos.
-- **¿Qué conclusiones da el reporte?** Ver *Conclusiones generales*: la API es rápida (unos 2 ms) y estable mientras la tasa de llegada sea moderada; su límite es la aceptación de conexiones, en torno a 200–240 pet/s exitosas en este equipo. Los resultados de saturación están contaminados por el generador.
+**Escenario configurado en JMeter:**
+
+![E06: 100 hilos, 60 s.](resultados/capturas/gui/E06_01.png)
+
+**Resultados observados:**
+
+| Petición | Muestras | Media (costo) | p95 | Máx |
+|---|---|---|---|---|
+| /api/tarifas (GET) | 1 851 | 2,17 ms | 3 ms | 45 ms |
+| /api/seleccion (POST) | 1 815 | 2,21 ms | 3 ms | 6 ms |
+| /api/pago (POST) | 1 785 | 2,17 ms | 3 ms | 4 ms |
+| Con 500 usuarios (E01b): tarifas / selección |  | 3,64 / 3,71 ms | 8 / 8 ms |  |
+
+![Statistics de E06 por petición.](resultados/capturas/reportes/E06_dashboard.png)
+
+![Media y p95 por petición.](resultados/graficas/p6_costo.png)
+
+**Respuesta:**
+
+La más costosa es /api/seleccion, pero por muy poco: 2,21 ms contra 2,17 ms de /api/tarifas (unos 0,04 ms, ≈ 2 %). Con 500 usuarios pasa lo mismo: 3,71 contra 3,64 ms. Tiene sentido: Selección lee y valida el JSON del cuerpo, genera un identificador, toma un candado y escribe la reserva en memoria, mientras que Tarifas solo devuelve una lista fija.
+
+En la práctica cuestan casi lo mismo en esta API: la diferencia está en el orden del ruido. El máximo mayor de Tarifas (45 ms) no es porque sea más costosa: es la primera petición de la prueba, que paga el calentamiento.
+
+**Qué no pude medir / qué cambió el resultado:** La diferencia es menor que la resolución de JMeter (mide en milisegundos enteros) y es una sola ejecución, así que no puedo afirmar con certeza que sea real. Con una base de datos real, la escritura de Selección costaría bastante más que una lectura.
+
+---
+
+## P7 · CONCURRENCIA: ¿Qué pasaría si 500 usuarios crean reservas al mismo tiempo? ¿Todas las respuestas son exitosas?
+
+**Qué cambia:** Llegada simultánea: Temporizador sincronizado con grupo de 500 en la petición de Selección.  
+**Métrica elegida:** % Error de SeleccionTarifaYCantidad, Media y Máx, y que cada reserva creada se pague con estado APROBADO y total correcto.
+
+| Elemento | Configuración (E07) |
+|---|---|
+| Hilos | 500 |
+| Subida (ramp-up) | 10 s |
+| Contador del bucle | 1 (cada usuario hace el flujo una vez) |
+| Temporizador sincronizado | Número de usuarios a agrupar: 500; timeout de 30 000 ms (hijo de SeleccionTarifaYCantidad) |
+| Temporizador aleatorio | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
+
+**Escenario configurado en JMeter:**
+
+![E07: 500 hilos, subida de 10 s, bucle 1.](resultados/capturas/gui/E07_01.png)
+![Temporizador sincronizado: agrupa 500 usuarios antes de la Selección.](resultados/capturas/gui/E07_02.png)
+
+**Resultados observados:**
+
+| Métrica | Valor (E07) |
+|---|---|
+| Selecciones enviadas | 500 en ≈ 1 s (483 en el mismo segundo) |
+| Selecciones exitosas | 498 de 500 (99,6 %) |
+| Errores en Selección | 2 conexiones rechazadas (HttpHostConnectException) |
+| Pagos | 498 APROBADO con total correcto; 2 respuestas 404 (las reservas que no se crearon) |
+| Selección: media / p95 / máx | 3,05 / 6 / 14 ms |
+| % Error total | 0,27 % (4 de 1 500 muestras) |
+
+![Statistics y Errors de E07.](resultados/capturas/reportes/E07_dashboard.png)
+
+
+**Respuesta:**
+
+No todas. Al liberar 500 selecciones en el mismo segundo, 498 fueron exitosas y 2 fueron rechazadas: la API no alcanzó a aceptar esas conexiones porque su cola de aceptación se llenó en ese instante. Los 2 pagos de esas reservas inexistentes respondieron 404.
+
+Las que entraron respondieron rápido (máximo 14 ms) y sin inconsistencias: no hubo reservas duplicadas ni totales mal calculados, gracias a los identificadores únicos y al candado (lock) que protege el diccionario de reservas.
+
+**Qué no pude medir / qué cambió el resultado:** El temporizador sincroniza el envío en JMeter, pero el sistema operativo puede reordenar o retrasar las conexiones. Con una sola ejecución, 2 errores son muy pocos para estimar la tasa de rechazo, y el rechazo depende de cómo Windows maneja la cola del servidor.
+
+---
+
+## P8 · CONCURRENCIA: ¿Qué pasaría si los usuarios disparan a la vez con el Temporizador sincronizado, frente a cuando llegan distribuidos?
+
+**Qué cambia:** Temporizador sincronizado (grupo de 500 → grupo de 1, es decir, sin sincronizar). Mismos 500 usuarios, misma subida y bucle 1.  
+**Métrica elegida:** Concentración de llegadas, Media, p95 y Máx de Selección, y % Error.
+
+| Escenario | E07 (sincronizado) | E08 (distribuido) |
+|---|---|---|
+| Hilos | 500 | 500 |
+| Subida (ramp-up) | 10 s | 10 s |
+| Contador del bucle | 1 | 1 |
+| Temporizador sincronizado | Grupo de 500 | Grupo de 1 (no sincroniza) |
+| Temporizador aleatorio | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
+
+**Escenario configurado en JMeter:**
+
+![E08: el mismo temporizador sincronizado con grupo de 1 (los usuarios llegan distribuidos).](resultados/capturas/gui/E08_02.png)
+
+**Resultados observados:**
+
+| Métrica | Sincronizados (E07) | Distribuidos (E08) |
+|---|---|---|
+| Las 500 selecciones llegaron en | ≈ 1 s | ≈ 11 s |
+| Máx. selecciones en un segundo | 483 | 57 |
+| Selección: media / p95 / máx | 3,05 / 6 / 14 ms | 2,50 / 4 / 5 ms |
+| Errores | 2 rechazos + 2 × 404 (0,27 %) | 0 (0 %) |
+| Duración total / throughput | 14 s / 110 pet/s | 13 s / 116 pet/s |
+
+![Statistics de E08 (distribuido), sin errores.](resultados/capturas/reportes/E08_dashboard.png)
+
+
+**Respuesta:**
+
+Con los mismos 500 usuarios y el mismo trabajo total, el patrón de llegada cambia el resultado. Sincronizados, unas 480 peticiones caen en el mismo segundo: el p95 de Selección sube un 50 % (4 → 6 ms), el máximo casi se triplica (5 → 14 ms) y aparecen conexiones rechazadas. Distribuidos, la API atiende como máximo 57 selecciones por segundo y no hay ningún error.
+
+La concurrencia, es decir, cuántos llegan en el mismo instante, afecta más que la cantidad total de usuarios.
+
+**Qué no pude medir / qué cambió el resultado:** Las diferencias absolutas son de pocos milisegundos y cada escenario se ejecutó una sola vez. Con 500 usuarios distribuidos en 10 s no se ve el límite; haría falta repetir con más usuarios o más iteraciones.
+
+---
+
+## P9 · CONCURRENCIA: ¿Qué pasaría si el total cobrado no coincide con precio × cantidad bajo carga? ¿Cómo lo validarías con el CSV?
+
+**Qué cambia:** Validación del total bajo carga (E09a) y control del validador con un total mal calculado a propósito (E09b).  
+**Métrica elegida:** % Error causado por la JSON Assertion del total y el mensaje de la aserción en el reporte.
+
+| Elemento | E09a (bajo carga) | E09b (control del validador) |
+|---|---|---|
+| CSV Data Set | datos.csv: tarifa, cantidad, total_esperado (24 filas) | datos_control_total_erroneo.csv: 3 filas, una con vip,3 = 1 000 000 (el correcto es 1 050 000) |
+| Aserción | JSON Assertion en Selección y en Pago: $.total = ${total_esperado} | La misma |
+| Hilos / subida / duración | 200 / 10 s / 60 s | 5 / 1 s / 10 s |
+| Temporizador | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
+
+**Escenario configurado en JMeter:**
+
+![CSV Data Set con las variables tarifa, cantidad y total_esperado.](resultados/capturas/gui/E09a_02.png)
+![JSON Assertion: $.total debe ser igual a ${total_esperado}.](resultados/capturas/gui/E09a_03.png)
+
+**Resultados observados:**
+
+| Métrica | E09a (200 usuarios) | E09b (control) |
+|---|---|---|
+| Muestras | 10 913 | 44 |
+| Totales validados | 3 641 selecciones + 3 569 pagos, todos correctos | Fallan exactamente las filas vip,3 |
+| % Error | 0 % | 20,45 % (5 Selección + 4 Pago) |
+| Mensaje | — | Value in json path '$.total' expected to be '1000000' |
+
+![E09a: 0 % de errores con la aserción del total activa.](resultados/capturas/reportes/E09a_dashboard.png)
+![E09b: la aserción detecta el total que no coincide.](resultados/capturas/reportes/E09b_dashboard.png)
+
+
+**Respuesta:**
+
+Lo validé con el CSV: agregué la columna total_esperado (precio × cantidad, calculada de antemano para las 24 combinaciones) y una JSON Assertion que compara $.total de la respuesta con ${total_esperado}, en Selección y en Pago. Como cada hilo lee su propia fila, cada petición lleva su resultado esperado, y la validación sigue funcionando con muchos usuarios a la vez.
+
+Bajo carga (200 usuarios, 10 913 peticiones) el total siempre coincidió: 0 % de errores. Si no coincidiera, JMeter marcaría esas muestras como fallidas, con el mensaje de la aserción en la tabla Errors. Eso es justo lo que pasó en el control E09b, donde puse un total incorrecto a propósito: fallaron exactamente las peticiones de esa fila.
+
+**Qué no pude medir / qué cambió el resultado:** Solo valida las combinaciones que están en el CSV (cantidades de 1 a 6). No prueba cantidades muy grandes ni cambios de precio durante la prueba (los precios son constantes en la API). El control E09b comprueba el validador, no la API: no es un caso negativo de la API.
+
+---
+
+## P10 · MEDICIÓN DE RECURSOS: ¿Qué pasaría si subo a 500 usuarios? ¿Cómo se comportan la memoria y la CPU durante la prueba? ¿Llegan a saturarse? ¿Cuánto cambia el tiempo de respuesta cuando eso pasa?
+
+**Qué cambia:** 500 usuarios con subida lenta (60 s) para ver cuándo empieza el problema; monitoreo de CPU y memoria cada segundo.  
+**Métrica elegida:** Hardware: CPU (%) y memoria del equipo, de la API y de JMeter. Rendimiento: peticiones exitosas por segundo, p95 y errores en el tiempo.
+
+| Elemento | Configuración (E10) |
+|---|---|
+| Hilos | 500 |
+| Subida (ramp-up) | 60 s |
+| Duración | 180 s |
+| Temporizador | Temporizador Aleatorio Uniforme: 500 ms + 0–1000 ms (pausas de 0,5 a 1,5 s) |
+| Monitoreo | psutil, 1 muestra por segundo (en lugar de PerfMon, que no funcionó) |
+
+**Escenario configurado en JMeter:**
+
+![E10: 500 hilos, subida de 60 s y 180 s de duración.](resultados/capturas/gui/E10_01.png)
+
+**Resultados observados:**
+
+| Momento | Exitosas/s | p95 | Qué pasó |
+|---|---|---|---|
+| 0–50 s (subida) | 45 → 460 | 3–4 ms | Sin errores |
+| 50–80 s (500 usuarios) | ≈ 490–495 | 5–8 ms | Algunas conexiones rechazadas |
+| 90–100 s | 463 → 176 | 13–21 ms | Rechazos y comienzan las BindException |
+| 110–140 s | 0 → 49 | hasta 25 ms | ≈ 4 900 BindException cada 10 s (sin puertos) |
+| 150–180 s | 134 → 331 | hasta 50 ms | Recuperación parcial |
+| Total | 74 231 muestras | p95 25 ms · máx 176 ms | 40,23 % de error |
+
+**CPU y memoria (psutil):**
+
+| Recurso | Inicio | Máximo | ¿Se satura? |
+|---|---|---|---|
+| CPU del equipo | ≈ 18 % | 37 % | No |
+| CPU de la API | 0,2 % | 4,9 % | No |
+| CPU de JMeter | 3 % | 23 % | No |
+| Memoria del equipo | 77 % | 81 % | No (estable) |
+| Memoria de la API | 24,4 MB | 25,3 MB | No |
+| Memoria de JMeter | 282 MB | 877 MB | Crece (guarda resultados) |
+
+![Statistics y Errors de E10: el 88 % de los errores son BindException.](resultados/capturas/reportes/E10_dashboard.png)
+
+![Rendimiento contra CPU y memoria en el tiempo.](resultados/graficas/p10_recursos.png)
+![Memoria de la API y de JMeter.](resultados/graficas/p10_memoria.png)
+
+**Respuesta:**
+
+Ni la CPU ni la memoria se saturaron: el equipo llegó como máximo al 37 % de CPU, la API al 4,9 % y la memoria de la API casi no cambió (24,4 → 25,3 MB). Aun así, el rendimiento colapsó. Mientras la carga subía, la API respondía en 3–4 ms; con 500 usuarios sostenidos, el p95 pasó a 13–21 ms, y entre los segundos 110 y 140 las peticiones exitosas cayeron casi a cero, con un p95 de hasta 50 ms en la recuperación.
+
+Lo que se saturó fueron las conexiones TCP, no el hardware. La API usa HTTP/1.0 (una conexión nueva por petición) con una cola de aceptación pequeña, y a unas 500 conexiones por segundo el equipo agotó sus 16 384 puertos dinámicos (java.net.BindException del lado de JMeter). Por eso hardware y rendimiento se miden juntos pero se leen por separado: el CPU bajo no garantiza buen rendimiento.
+
+**Qué no pude medir / qué cambió el resultado:** PerfMon no funcionó (SIGAR se cae en Windows 11) y usé psutil. El agotamiento de puertos ocurre porque JMeter y la API están en el mismo equipo: con la API en un servidor dedicado el resultado sería distinto. La memoria de JMeter creció hasta 877 MB, otra razón para usar no-GUI y pocos listeners.
+
+---
+
+## Conclusiones
+
+- Con usuarios realistas (pausas de 0,5–1,5 s) la API responde en 2–4 ms y escala casi lineal hasta 250 usuarios (≈ 250 pet/s) sin errores (P1, P4), y se mantiene estable durante 10 minutos (P5).
+- El límite aparece por la forma de llegada más que por la cantidad: subida brusca (P2), sin temporizadores (P3) o llegadas sincronizadas (P7, P8) producen picos y rechazos que no aparecen con llegadas distribuidas.
+- El recurso que se agota es la conexión TCP (cola de aceptación de la API y puertos del equipo), no el CPU ni la memoria (P4, P10).
+- Las aserciones con datos del CSV permiten validar la lógica de negocio (el total) mientras hay carga (P9).
+
+## Reproducir
+
+```bash
+pip install psutil matplotlib
+JMETER_HOME=/ruta/apache-jmeter-5.6.3 JAVA=/ruta/jdk-17/bin/java python run_experimentos.py   # todos los escenarios
+python graficas.py
+```

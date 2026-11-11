@@ -133,7 +133,7 @@ $(document).ready(function() {
         widgets: ['zebra']
     });
 
-    var data = {"OkPercent": 100.0, "KoPercent": 0.0};
+    var data = {"OkPercent": 99.7436328486173, "KoPercent": 0.2563671513827015};
     var dataset = [
         {
             "label" : "FAIL",
@@ -173,7 +173,7 @@ $(document).ready(function() {
     });
 
     // Creates APDEX table
-    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [1.0, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [1.0, 500, 1500, "SeleccionTarifaYCantidad"], "isController": false}, {"data": [1.0, 500, 1500, "Pago"], "isController": false}, {"data": [1.0, 500, 1500, "Tarifas"], "isController": false}]}, function(index, item){
+    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [0.997436328486173, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [0.9981091642505988, 500, 1500, "SeleccionTarifaYCantidad"], "isController": false}, {"data": [0.9964372057513678, 500, 1500, "Pago"], "isController": false}, {"data": [0.9977505623594102, 500, 1500, "Tarifas"], "isController": false}]}, function(index, item){
         switch(index){
             case 0:
                 item = item.toFixed(3);
@@ -187,7 +187,7 @@ $(document).ready(function() {
     }, [[0, 0]], 3);
 
     // Create statistics table
-    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 1371, 0, 0.0, 2.243617797228301, 1, 46, 2.0, 3.0, 3.0, 4.0, 23.38552860505578, 7.955921061048, 5.708691269658513], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["SeleccionTarifaYCantidad", 458, 0, 0.0, 2.1724890829694337, 1, 4, 2.0, 3.0, 3.0, 4.0, 7.9352703709479, 2.140258448550687, 2.0705148613060276], "isController": false}, {"data": ["Pago", 447, 0, 0.0, 2.2013422818791937, 1, 4, 2.0, 3.0, 3.0, 4.0, 7.8863796753705016, 2.2519862054516584, 2.1102226865737475], "isController": false}, {"data": ["Tarifas", 466, 0, 0.0, 2.3540772532188834, 1, 46, 2.0, 3.0, 3.0, 4.0, 7.971535119230901, 3.6821641712853674, 1.6347874756235246], "isController": false}]}, function(index, item){
+    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 23794, 61, 0.2563671513827015, 3.1529377153904323, 1, 95, 3.0, 5.0, 5.0, 9.0, 199.34985505789308, 68.500453664082, 48.60287204512894], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["SeleccionTarifaYCantidad", 7933, 15, 0.18908357494012354, 3.1295852766922976, 1, 28, 3.0, 5.0, 5.0, 9.0, 66.7985853822836, 18.285466750168407, 17.384144624663186], "isController": false}, {"data": ["Pago", 7859, 28, 0.3562794248632141, 3.102303091996441, 1, 32, 3.0, 4.0, 5.0, 8.0, 66.55826282849327, 19.230491212831456, 17.778710806825206], "isController": false}, {"data": ["Tarifas", 8002, 18, 0.22494376405898525, 3.2258185453636465, 1, 95, 3.0, 5.0, 6.0, 9.0, 67.06054892101405, 31.291149434318037, 13.72171590194846], "isController": false}]}, function(index, item){
         switch(index){
             // Errors pct
             case 3:
@@ -217,7 +217,7 @@ $(document).ready(function() {
     }, [[0, 0]], 0, summaryTableHeader);
 
     // Create error table
-    createTable($("#errorsTable"), {"supportsControllersDiscrimination": false, "titles": ["Type of error", "Number of errors", "% in errors", "% in all samples"], "items": []}, function(index, item){
+    createTable($("#errorsTable"), {"supportsControllersDiscrimination": false, "titles": ["Type of error", "Number of errors", "% in errors", "% in all samples"], "items": [{"data": ["Non HTTP response code: java.net.BindException/Non HTTP response message: Address already in use: getsockopt", 4, 6.557377049180328, 0.01681096074640666], "isController": false}, {"data": ["404/Not Found", 15, 24.59016393442623, 0.06304110279902496], "isController": false}, {"data": ["Non HTTP response code: org.apache.http.conn.HttpHostConnectException/Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0.0.1] failed: Connection refused: getsockopt", 42, 68.85245901639344, 0.1765150878372699], "isController": false}]}, function(index, item){
         switch(index){
             case 2:
             case 3:
@@ -228,7 +228,7 @@ $(document).ready(function() {
     }, [[1, 1]]);
 
         // Create top5 errors by sampler
-    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 1371, 0, "", "", "", "", "", "", "", "", "", ""], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": [], "isController": false}, {"data": [], "isController": false}, {"data": [], "isController": false}]}, function(index, item){
+    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 23794, 61, "Non HTTP response code: org.apache.http.conn.HttpHostConnectException/Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0.0.1] failed: Connection refused: getsockopt", 42, "404/Not Found", 15, "Non HTTP response code: java.net.BindException/Non HTTP response message: Address already in use: getsockopt", 4, "", "", "", ""], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": ["SeleccionTarifaYCantidad", 7933, 15, "Non HTTP response code: org.apache.http.conn.HttpHostConnectException/Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0.0.1] failed: Connection refused: getsockopt", 14, "Non HTTP response code: java.net.BindException/Non HTTP response message: Address already in use: getsockopt", 1, "", "", "", "", "", ""], "isController": false}, {"data": ["Pago", 7859, 28, "404/Not Found", 15, "Non HTTP response code: org.apache.http.conn.HttpHostConnectException/Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0.0.1] failed: Connection refused: getsockopt", 12, "Non HTTP response code: java.net.BindException/Non HTTP response message: Address already in use: getsockopt", 1, "", "", "", ""], "isController": false}, {"data": ["Tarifas", 8002, 18, "Non HTTP response code: org.apache.http.conn.HttpHostConnectException/Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0.0.1] failed: Connection refused: getsockopt", 16, "Non HTTP response code: java.net.BindException/Non HTTP response message: Address already in use: getsockopt", 2, "", "", "", "", "", ""], "isController": false}]}, function(index, item){
         return item;
     }, [[0, 0]], 0);
 

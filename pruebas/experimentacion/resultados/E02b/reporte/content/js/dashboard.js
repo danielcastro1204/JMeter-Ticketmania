@@ -133,7 +133,7 @@ $(document).ready(function() {
         widgets: ['zebra']
     });
 
-    var data = {"OkPercent": 100.0, "KoPercent": 0.0};
+    var data = {"OkPercent": 99.9888442659527, "KoPercent": 0.011155734047300312};
     var dataset = [
         {
             "label" : "FAIL",
@@ -173,7 +173,7 @@ $(document).ready(function() {
     });
 
     // Creates APDEX table
-    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [1.0, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [1.0, 500, 1500, "SeleccionTarifaYCantidad"], "isController": false}, {"data": [1.0, 500, 1500, "Pago"], "isController": false}, {"data": [1.0, 500, 1500, "Tarifas"], "isController": false}]}, function(index, item){
+    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [0.999888442659527, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [0.9998327759197324, 500, 1500, "SeleccionTarifaYCantidad"], "isController": false}, {"data": [0.9998309668695065, 500, 1500, "Pago"], "isController": false}, {"data": [1.0, 500, 1500, "Tarifas"], "isController": false}]}, function(index, item){
         switch(index){
             case 0:
                 item = item.toFixed(3);
@@ -187,7 +187,7 @@ $(document).ready(function() {
     }, [[0, 0]], 3);
 
     // Create statistics table
-    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 2729, 0, 0.0, 2.039208501282513, 1, 41, 2.0, 3.0, 3.0, 3.0, 46.083960957816885, 15.679848979617683, 11.249548806950589], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["SeleccionTarifaYCantidad", 910, 0, 0.0, 2.0406593406593387, 1, 5, 2.0, 3.0, 3.0, 3.0, 15.540944411237298, 4.191738803261891, 4.0551818269148665], "isController": false}, {"data": ["Pago", 891, 0, 0.0, 2.0370370370370385, 1, 4, 2.0, 3.0, 3.0, 3.0, 15.440603067325188, 4.409076878086821, 4.131567617624123], "isController": false}, {"data": ["Tarifas", 928, 0, 0.0, 2.039870689655173, 1, 41, 2.0, 3.0, 3.0, 3.0, 15.671440151310456, 7.238858585517428, 3.2138695622804647], "isController": false}]}, function(index, item){
+    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 17928, 2, 0.011155734047300312, 2.316097724230234, 1, 48, 2.0, 3.0, 3.0, 4.0, 151.0413156298443, 51.284250114262484, 36.892516518037674], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["SeleccionTarifaYCantidad", 5980, 1, 0.016722408026755852, 2.3285953177257483, 1, 13, 2.0, 3.0, 3.0, 4.0, 50.6693780715133, 13.66814317753347, 13.20946827073801], "isController": false}, {"data": ["Pago", 5916, 1, 0.016903313049357674, 2.3274171737660696, 1, 10, 2.0, 3.0, 3.0, 4.0, 50.58572039333048, 14.432282759726379, 13.535540361799914], "isController": false}, {"data": ["Tarifas", 6032, 0, 0.0, 2.2926061007957608, 1, 48, 2.0, 3.0, 3.0, 4.0, 50.81889869919795, 23.473963949922492, 10.421844459796455], "isController": false}]}, function(index, item){
         switch(index){
             // Errors pct
             case 3:
@@ -217,7 +217,7 @@ $(document).ready(function() {
     }, [[0, 0]], 0, summaryTableHeader);
 
     // Create error table
-    createTable($("#errorsTable"), {"supportsControllersDiscrimination": false, "titles": ["Type of error", "Number of errors", "% in errors", "% in all samples"], "items": []}, function(index, item){
+    createTable($("#errorsTable"), {"supportsControllersDiscrimination": false, "titles": ["Type of error", "Number of errors", "% in errors", "% in all samples"], "items": [{"data": ["Non HTTP response code: java.net.BindException/Non HTTP response message: Address already in use: getsockopt", 1, 50.0, 0.005577867023650156], "isController": false}, {"data": ["404/Not Found", 1, 50.0, 0.005577867023650156], "isController": false}]}, function(index, item){
         switch(index){
             case 2:
             case 3:
@@ -228,7 +228,7 @@ $(document).ready(function() {
     }, [[1, 1]]);
 
         // Create top5 errors by sampler
-    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 2729, 0, "", "", "", "", "", "", "", "", "", ""], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": [], "isController": false}, {"data": [], "isController": false}, {"data": [], "isController": false}]}, function(index, item){
+    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 17928, 2, "Non HTTP response code: java.net.BindException/Non HTTP response message: Address already in use: getsockopt", 1, "404/Not Found", 1, "", "", "", "", "", ""], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": ["SeleccionTarifaYCantidad", 5980, 1, "Non HTTP response code: java.net.BindException/Non HTTP response message: Address already in use: getsockopt", 1, "", "", "", "", "", "", "", ""], "isController": false}, {"data": ["Pago", 5916, 1, "404/Not Found", 1, "", "", "", "", "", "", "", ""], "isController": false}, {"data": [], "isController": false}]}, function(index, item){
         return item;
     }, [[0, 0]], 0);
 

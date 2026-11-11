@@ -1,0 +1,128 @@
+{
+  "id": "E07",
+  "pregunta": "P7",
+  "descripcion": "500 usuarios x1, Selección sincronizada de a 500",
+  "props_cambiadas": {
+    "hilos": 500,
+    "bucles": 1,
+    "duracion": 600,
+    "sync": 500
+  },
+  "props_efectivas": {
+    "hilos": 500,
+    "rampup": 10,
+    "duracion": 600,
+    "bucles": 1,
+    "pausa_min": 500,
+    "pausa_rango": 1000,
+    "sync": 500,
+    "sync_timeout": 30000,
+    "conexion": "keep-alive",
+    "csv": "datos.csv",
+    "utg1": 0,
+    "utg2": 0,
+    "utg3": 0,
+    "utg4": 0,
+    "utg_pausa_min": 500,
+    "utg_pausa_rango": 1000,
+    "host": "127.0.0.1",
+    "puerto": 8080
+  },
+  "duracion_real_s": 24.0,
+  "estadisticas": {
+    "Tarifas": {
+      "muestras": 500,
+      "media_ms": 2.67,
+      "mediana_ms": 2,
+      "p90_ms": 3,
+      "p95_ms": 3,
+      "p99_ms": 4,
+      "max_ms": 59,
+      "errores": 0,
+      "error_pct": 0.0,
+      "throughput_rps": 47.18,
+      "connect_media_ms": 1.204,
+      "duracion_s": 10.6
+    },
+    "SeleccionTarifaYCantidad": {
+      "muestras": 500,
+      "media_ms": 3.05,
+      "mediana_ms": 3,
+      "p90_ms": 5,
+      "p95_ms": 6,
+      "p99_ms": 7,
+      "max_ms": 14,
+      "errores": 2,
+      "error_pct": 0.4,
+      "throughput_rps": 493.1,
+      "connect_media_ms": 1.004,
+      "duracion_s": 1.0
+    },
+    "Pago": {
+      "muestras": 500,
+      "media_ms": 2.63,
+      "mediana_ms": 2,
+      "p90_ms": 4,
+      "p95_ms": 4,
+      "p99_ms": 6,
+      "max_ms": 7,
+      "errores": 2,
+      "error_pct": 0.4,
+      "throughput_rps": 265.25,
+      "connect_media_ms": 0.926,
+      "duracion_s": 1.9
+    },
+    "TOTAL": {
+      "muestras": 1500,
+      "media_ms": 2.78,
+      "mediana_ms": 3,
+      "p90_ms": 4,
+      "p95_ms": 5,
+      "p99_ms": 6,
+      "max_ms": 59,
+      "errores": 4,
+      "error_pct": 0.27,
+      "throughput_rps": 110.47,
+      "connect_media_ms": 1.045,
+      "duracion_s": 13.6
+    }
+  },
+  "errores": {
+    "SeleccionTarifaYCantidad | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 2,
+    "Pago | 404 | Not Found": 2
+  },
+  "serie_10s": [
+    {
+      "seg": 0,
+      "rps": 49.0,
+      "media_ms": 2.7,
+      "p95_ms": 3,
+      "error_pct": 0.0,
+      "hilos": 500
+    },
+    {
+      "seg": 10,
+      "rps": 101.0,
+      "media_ms": 2.8,
+      "p95_ms": 5,
+      "error_pct": 0.4,
+      "hilos": 500
+    }
+  ],
+  "recursos": {
+    "cpu_sistema_pct_media": 14.2,
+    "cpu_sistema_pct_max": 32.2,
+    "cpu_api_pct_media": 0.6,
+    "cpu_api_pct_max": 4.0,
+    "cpu_jmeter_pct_media": 4.7,
+    "cpu_jmeter_pct_max": 25.1,
+    "mem_api_mb_media": 24.5,
+    "mem_api_mb_max": 24.7,
+    "mem_jmeter_mb_media": 271.9,
+    "mem_jmeter_mb_max": 387.8,
+    "hilos_api_media": 4.0,
+    "hilos_api_max": 4.0,
+    "mem_api_mb_inicio": 24.4,
+    "mem_api_mb_fin": 24.6
+  }
+}

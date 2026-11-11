@@ -1,73 +1,57 @@
 id,pregunta,descripcion,label,muestras,media_ms,mediana_ms,p90_ms,p95_ms,p99_ms,max_ms,errores,error_pct,throughput_rps,connect_media_ms,duracion_s,cpu_api_max,cpu_jmeter_max,cpu_sistema_max,mem_api_mb_max
-E01,P1,"Línea base: 10 usuarios, pausas 0,5-1,5 s, 60 s",Tarifas,187,2.44,2,3,3,4,35,0,0.0,3.18,1.07,58.7,0.3,19.1,37.3,24.5
-E01,P1,"Línea base: 10 usuarios, pausas 0,5-1,5 s, 60 s",SeleccionTarifaYCantidad,181,2.44,2,3,3,4,5,0,0.0,3.13,1.044,57.9,0.3,19.1,37.3,24.5
-E01,P1,"Línea base: 10 usuarios, pausas 0,5-1,5 s, 60 s",Pago,179,2.41,2,3,3,3,3,0,0.0,3.17,1.028,56.4,0.3,19.1,37.3,24.5
-E01,P1,"Línea base: 10 usuarios, pausas 0,5-1,5 s, 60 s",TOTAL,547,2.43,2,3,3,4,35,0,0.0,9.31,1.048,58.7,0.3,19.1,37.3,24.5
-E02a,P2,25 usuarios,Tarifas,466,2.35,2,3,3,4,46,0,0.0,7.97,1.03,58.5,0.7,17.0,40.7,24.5
-E02a,P2,25 usuarios,SeleccionTarifaYCantidad,458,2.17,2,3,3,4,4,0,0.0,7.94,0.902,57.7,0.7,17.0,40.7,24.5
-E02a,P2,25 usuarios,Pago,447,2.2,2,3,3,4,4,0,0.0,7.89,0.895,56.7,0.7,17.0,40.7,24.5
-E02a,P2,25 usuarios,TOTAL,1371,2.24,2,3,3,4,46,0,0.0,23.39,0.943,58.6,0.7,17.0,40.7,24.5
-E02b,P2,50 usuarios,Tarifas,928,2.04,2,3,3,3,41,0,0.0,15.67,0.848,59.2,0.9,23.9,47.1,24.6
-E02b,P2,50 usuarios,SeleccionTarifaYCantidad,910,2.04,2,3,3,3,5,0,0.0,15.54,0.837,58.6,0.9,23.9,47.1,24.6
-E02b,P2,50 usuarios,Pago,891,2.04,2,3,3,3,4,0,0.0,15.44,0.82,57.7,0.9,23.9,47.1,24.6
-E02b,P2,50 usuarios,TOTAL,2729,2.04,2,3,3,3,41,0,0.0,46.08,0.835,59.2,0.9,23.9,47.1,24.6
-E02c,P2,100 usuarios,Tarifas,1842,2.18,2,3,3,4,41,0,0.0,31.25,0.866,58.9,1.4,22.7,41.2,24.7
-E02c,P2,100 usuarios,SeleccionTarifaYCantidad,1816,2.19,2,3,3,4,6,0,0.0,31.16,0.861,58.3,1.4,22.7,41.2,24.7
-E02c,P2,100 usuarios,Pago,1782,2.18,2,3,3,4,4,0,0.0,31.09,0.869,57.3,1.4,22.7,41.2,24.7
-E02c,P2,100 usuarios,TOTAL,5440,2.18,2,3,3,4,41,0,0.0,92.24,0.866,59.0,1.4,22.7,41.2,24.7
-E02d,P2,200 usuarios,Tarifas,3709,2.27,2,3,3,4,50,0,0.0,62.65,0.858,59.2,2.3,23.4,35.4,24.7
-E02d,P2,200 usuarios,SeleccionTarifaYCantidad,3640,2.26,2,3,3,4,6,0,0.0,62.27,0.856,58.5,2.3,23.4,35.4,24.7
-E02d,P2,200 usuarios,Pago,3561,2.26,2,3,3,4,8,0,0.0,61.65,0.862,57.8,2.3,23.4,35.4,24.7
-E02d,P2,200 usuarios,TOTAL,10910,2.26,2,3,3,4,50,0,0.0,184.23,0.859,59.2,2.3,23.4,35.4,24.7
-E03a,P3,"200 usuarios x1, ramp-up 1 s",Tarifas,200,8.27,3,5,56,83,84,7,3.5,124.92,4.875,1.6,1.6,20.3,32.5,24.6
-E03a,P3,"200 usuarios x1, ramp-up 1 s",SeleccionTarifaYCantidad,200,2.9,3,4,4,5,6,0,0.0,82.41,1.205,2.4,1.6,20.3,32.5,24.6
-E03a,P3,"200 usuarios x1, ramp-up 1 s",Pago,200,2.71,3,4,4,4,5,0,0.0,62.32,1.135,3.2,1.6,20.3,32.5,24.6
-E03a,P3,"200 usuarios x1, ramp-up 1 s",TOTAL,600,4.62,3,4,5,61,84,7,1.17,133.27,2.405,4.5,1.6,20.3,32.5,24.6
-E03b,P3,"200 usuarios x1, ramp-up 60 s",Tarifas,200,3.25,3,4,4,5,49,0,0.0,3.35,1.53,59.7,0.4,21.5,37.1,24.6
-E03b,P3,"200 usuarios x1, ramp-up 60 s",SeleccionTarifaYCantidad,200,3.13,3,4,4,5,7,0,0.0,3.35,1.415,59.8,0.4,21.5,37.1,24.6
-E03b,P3,"200 usuarios x1, ramp-up 60 s",Pago,200,3.12,3,4,4,5,5,0,0.0,3.31,1.39,60.4,0.4,21.5,37.1,24.6
-E03b,P3,"200 usuarios x1, ramp-up 60 s",TOTAL,600,3.17,3,4,4,5,49,0,0.0,9.67,1.445,62.1,0.4,21.5,37.1,24.6
-E04,P4,50 usuarios SIN temporizador,Tarifas,60295,11.2,6,29,37,61,245,54604,90.56,1007.62,8.855,59.8,7.6,59.7,97.4,26.2
-E04,P4,50 usuarios SIN temporizador,SeleccionTarifaYCantidad,60277,11.22,6,29,37,59,243,54414,90.27,1008.16,8.832,59.8,7.6,59.7,97.4,26.2
-E04,P4,50 usuarios SIN temporizador,Pago,60263,11.25,6,29,37,61,226,58637,97.3,1008.6,8.764,59.7,7.6,59.7,97.4,26.2
-E04,P4,50 usuarios SIN temporizador,TOTAL,180835,11.22,6,29,37,60,245,167655,92.71,3021.98,8.817,59.8,7.6,59.7,97.4,26.2
-E05,P5,"Estrés UTG: escalones 100/300/600/1000 hilos, sin pausas",Tarifas,163933,73.83,44,175,272,459,1386,157145,95.86,1062.13,71.459,154.3,3.8,79.0,95.6,26.2
-E05,P5,"Estrés UTG: escalones 100/300/600/1000 hilos, sin pausas",SeleccionTarifaYCantidad,163599,73.88,44,174,270,456,1375,156697,95.78,1061.39,71.463,154.1,3.8,79.0,95.6,26.2
-E05,P5,"Estrés UTG: escalones 100/300/600/1000 hilos, sin pausas",Pago,163265,74.1,44,176,272,451,1385,159973,97.98,1060.78,71.667,153.9,3.8,79.0,95.6,26.2
-E05,P5,"Estrés UTG: escalones 100/300/600/1000 hilos, sin pausas",TOTAL,490797,73.93,44,175,271,455,1386,473815,96.54,3179.89,71.529,154.3,3.8,79.0,95.6,26.2
-E06a,P6,"100 usuarios x3, sin sincronizar",Tarifas,300,3.38,3,4,4,7,44,0,0.0,19.02,1.583,15.8,0.9,19.8,44.2,24.5
-E06a,P6,"100 usuarios x3, sin sincronizar",SeleccionTarifaYCantidad,300,3.25,3,4,5,6,7,0,0.0,18.39,1.433,16.3,0.9,19.8,44.2,24.5
-E06a,P6,"100 usuarios x3, sin sincronizar",Pago,300,3.17,3,4,5,6,6,0,0.0,18.03,1.363,16.6,0.9,19.8,44.2,24.5
-E06a,P6,"100 usuarios x3, sin sincronizar",TOTAL,900,3.27,3,4,5,6,44,0,0.0,49.57,1.46,18.2,0.9,19.8,44.2,24.5
-E06b,P6,"100 usuarios x3, Selección sincronizada en grupos de 100",Tarifas,300,2.55,2,3,3,4,41,0,0.0,16.37,1.09,18.3,1.2,16.9,36.7,24.6
-E06b,P6,"100 usuarios x3, Selección sincronizada en grupos de 100",SeleccionTarifaYCantidad,300,2.59,2,3,4,4,14,0,0.0,17.37,1.09,17.3,1.2,16.9,36.7,24.6
-E06b,P6,"100 usuarios x3, Selección sincronizada en grupos de 100",Pago,300,2.36,2,3,3,4,5,0,0.0,16.51,0.94,18.2,1.2,16.9,36.7,24.6
-E06b,P6,"100 usuarios x3, Selección sincronizada en grupos de 100",TOTAL,900,2.5,2,3,4,4,41,0,0.0,37.03,1.04,24.3,1.2,16.9,36.7,24.6
-E07a,P7,50 usuarios sin pausas,Tarifas,64099,11.17,6,29,37,64,374,58035,90.54,1070.56,8.92,59.9,9.6,59.5,91.0,26.3
-E07a,P7,50 usuarios sin pausas,SeleccionTarifaYCantidad,64086,11.24,6,29,37,65,359,57750,90.11,1071.01,8.894,59.8,9.6,59.5,91.0,26.3
-E07a,P7,50 usuarios sin pausas,Pago,64068,11.25,6,29,37,66,351,62288,97.22,1071.41,8.9,59.8,9.6,59.5,91.0,26.3
-E07a,P7,50 usuarios sin pausas,TOTAL,192253,11.22,6,29,37,65,374,178073,92.62,3210.8,8.905,59.9,9.6,59.5,91.0,26.3
-E07b,P7,300 usuarios sin pausas,Tarifas,51501,67.64,54,145,175,265,698,49222,95.57,861.34,64.829,59.8,2.7,77.3,97.4,24.9
-E07b,P7,300 usuarios sin pausas,SeleccionTarifaYCantidad,51401,68.37,55,146,178,271,700,49111,95.54,861.41,65.475,59.7,2.7,77.3,97.4,24.9
-E07b,P7,300 usuarios sin pausas,Pago,51313,67.91,55,145,177,267,766,50176,97.78,861.36,64.941,59.6,2.7,77.3,97.4,24.9
-E07b,P7,300 usuarios sin pausas,TOTAL,154215,67.97,55,145,177,268,766,148509,96.3,2578.76,65.082,59.8,2.7,77.3,97.4,24.9
-E08,P8,50 usuarios durante 300 s,Tarifas,4897,2.09,2,3,3,4,38,0,0.0,16.39,0.806,298.8,1.0,17.2,84.6,24.8
-E08,P8,50 usuarios durante 300 s,SeleccionTarifaYCantidad,4877,2.14,2,3,3,4,27,0,0.0,16.38,0.812,297.8,1.0,17.2,84.6,24.8
-E08,P8,50 usuarios durante 300 s,Pago,4866,2.13,2,3,3,4,29,0,0.0,16.4,0.823,296.7,1.0,17.2,84.6,24.8
-E08,P8,50 usuarios durante 300 s,TOTAL,14640,2.12,2,3,3,4,38,0,0.0,48.99,0.813,298.8,1.0,17.2,84.6,24.8
-E09a,P9,"50 usuarios, solo tarifa general",Tarifas,923,2.16,2,3,3,3,47,0,0.0,15.69,0.931,58.8,0.7,10.9,26.2,24.7
-E09a,P9,"50 usuarios, solo tarifa general",SeleccionTarifaYCantidad,906,2.14,2,3,3,3,4,0,0.0,15.65,0.891,57.9,0.7,10.9,26.2,24.7
-E09a,P9,"50 usuarios, solo tarifa general",Pago,890,2.14,2,3,3,3,4,0,0.0,15.67,0.885,56.8,0.7,10.9,26.2,24.7
-E09a,P9,"50 usuarios, solo tarifa general",TOTAL,2719,2.15,2,3,3,3,47,0,0.0,46.1,0.903,59.0,0.7,10.9,26.2,24.7
-E09b,P9,"50 usuarios, solo tarifa vip",Tarifas,920,2.23,2,3,3,4,40,0,0.0,15.75,0.938,58.4,1.1,19.5,48.6,24.7
-E09b,P9,"50 usuarios, solo tarifa vip",SeleccionTarifaYCantidad,909,2.12,2,3,3,3,5,0,0.0,15.74,0.837,57.7,1.1,19.5,48.6,24.7
-E09b,P9,"50 usuarios, solo tarifa vip",Pago,893,2.13,2,3,3,4,6,0,0.0,15.74,0.834,56.7,1.1,19.5,48.6,24.7
-E09b,P9,"50 usuarios, solo tarifa vip",TOTAL,2722,2.16,2,3,3,4,40,0,0.0,46.51,0.87,58.5,1.1,19.5,48.6,24.7
-E10a,P10,"50 usuarios con pausas, Connection: keep-alive",Tarifas,929,2.63,3,3,4,5,41,0,0.0,15.79,1.154,58.8,1.1,10.7,82.3,24.6
-E10a,P10,"50 usuarios con pausas, Connection: keep-alive",SeleccionTarifaYCantidad,909,2.63,3,3,4,5,6,0,0.0,15.75,1.145,57.7,1.1,10.7,82.3,24.6
-E10a,P10,"50 usuarios con pausas, Connection: keep-alive",Pago,892,2.64,3,3,4,5,6,0,0.0,15.61,1.145,57.1,1.1,10.7,82.3,24.6
-E10a,P10,"50 usuarios con pausas, Connection: keep-alive",TOTAL,2730,2.64,3,3,4,5,41,0,0.0,46.4,1.148,58.8,1.1,10.7,82.3,24.6
-E10b,P10,"50 usuarios con pausas, Connection: close",Tarifas,930,1.98,2,3,3,3,37,0,0.0,15.74,0.788,59.1,0.9,20.6,40.5,24.6
-E10b,P10,"50 usuarios con pausas, Connection: close",SeleccionTarifaYCantidad,906,1.95,2,3,3,3,4,0,0.0,15.68,0.77,57.8,0.9,20.6,40.5,24.6
-E10b,P10,"50 usuarios con pausas, Connection: close",Pago,892,1.99,2,3,3,3,5,0,0.0,15.69,0.803,56.9,0.9,20.6,40.5,24.6
-E10b,P10,"50 usuarios con pausas, Connection: close",TOTAL,2728,1.97,2,3,3,3,37,0,0.0,46.18,0.787,59.1,0.9,20.6,40.5,24.6
+E01a,P1,"20 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s",Tarifas,371,2.44,2,3,3,4,52,0,0.0,6.36,1.092,58.4,0.5,16.0,24.5,24.5
+E01a,P1,"20 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s",SeleccionTarifaYCantidad,367,2.35,2,3,3,4,6,0,0.0,6.39,1.003,57.4,0.5,16.0,24.5,24.5
+E01a,P1,"20 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s",Pago,362,2.39,2,3,3,4,5,0,0.0,6.41,1.028,56.5,0.5,16.0,24.5,24.5
+E01a,P1,"20 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s",TOTAL,1100,2.39,2,3,3,4,52,0,0.0,18.79,1.041,58.5,0.5,16.0,24.5,24.5
+E01b,P1,"500 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s",Tarifas,9248,3.64,3,6,8,14,53,123,1.33,155.7,1.222,59.4,5.3,24.5,72.0,24.8
+E01b,P1,"500 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s",SeleccionTarifaYCantidad,9072,3.71,3,6,8,13,54,97,1.07,154.68,1.214,58.6,5.3,24.5,72.0,24.8
+E01b,P1,"500 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s",Pago,8923,3.7,3,6,8,14,41,211,2.36,153.67,1.225,58.1,5.3,24.5,72.0,24.8
+E01b,P1,"500 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s",TOTAL,27243,3.68,3,6,8,14,54,431,1.58,458.5,1.22,59.4,5.3,24.5,72.0,24.8
+E02a,P2,"200 usuarios, ramp-up 1 s, 120 s",Tarifas,8002,3.23,3,5,6,9,95,18,0.22,67.06,1.416,119.3,2.3,24.2,40.8,24.7
+E02a,P2,"200 usuarios, ramp-up 1 s, 120 s",SeleccionTarifaYCantidad,7933,3.13,3,5,5,9,28,15,0.19,66.8,1.329,118.8,2.3,24.2,40.8,24.7
+E02a,P2,"200 usuarios, ramp-up 1 s, 120 s",Pago,7859,3.1,3,4,5,8,32,28,0.36,66.56,1.321,118.1,2.3,24.2,40.8,24.7
+E02a,P2,"200 usuarios, ramp-up 1 s, 120 s",TOTAL,23794,3.15,3,5,6,9,95,61,0.26,199.35,1.356,119.4,2.3,24.2,40.8,24.7
+E02b,P2,"200 usuarios, ramp-up 60 s, 120 s",Tarifas,6032,2.29,2,3,3,4,48,0,0.0,50.82,0.927,118.7,2.3,18.4,43.1,24.7
+E02b,P2,"200 usuarios, ramp-up 60 s, 120 s",SeleccionTarifaYCantidad,5980,2.33,2,3,3,4,13,1,0.02,50.67,0.932,118.0,2.3,18.4,43.1,24.7
+E02b,P2,"200 usuarios, ramp-up 60 s, 120 s",Pago,5916,2.33,2,3,3,4,10,1,0.02,50.59,0.937,117.0,2.3,18.4,43.1,24.7
+E02b,P2,"200 usuarios, ramp-up 60 s, 120 s",TOTAL,17928,2.32,2,3,3,4,48,2,0.01,151.04,0.932,118.7,2.3,18.4,43.1,24.7
+E03,P3,"20 usuarios SIN temporizador, ramp-up 10 s, 60 s",Tarifas,30205,11.62,8,28,34,49,92,22303,73.84,504.72,7.184,59.8,7.7,63.7,80.7,26.3
+E03,P3,"20 usuarios SIN temporizador, ramp-up 10 s, 60 s",SeleccionTarifaYCantidad,30200,11.69,8,28,35,49,79,22072,73.09,505.03,7.09,59.8,7.7,63.7,80.7,26.3
+E03,P3,"20 usuarios SIN temporizador, ramp-up 10 s, 60 s",Pago,30193,11.68,8,28,34,48,96,26497,87.76,505.28,7.073,59.8,7.7,63.7,80.7,26.3
+E03,P3,"20 usuarios SIN temporizador, ramp-up 10 s, 60 s",TOTAL,90598,11.66,8,28,34,49,96,70872,78.23,1513.83,7.116,59.8,7.7,63.7,80.7,26.3
+E04,P4,"Ultimate Thread Group: 50, 100, 250 y 500 hilos cada 30 s, pausas 0,5-1,5 s",Tarifas,13593,4.13,3,6,12,26,217,767,5.64,88.42,1.943,153.7,5.6,29.6,59.3,24.7
+E04,P4,"Ultimate Thread Group: 50, 100, 250 y 500 hilos cada 30 s, pausas 0,5-1,5 s",SeleccionTarifaYCantidad,13425,4.2,3,6,12,26,204,802,5.97,88.11,2.011,152.4,5.6,29.6,59.3,24.7
+E04,P4,"Ultimate Thread Group: 50, 100, 250 y 500 hilos cada 30 s, pausas 0,5-1,5 s",Pago,13259,4.2,3,7,12,26,203,1025,7.73,87.5,1.981,151.5,5.6,29.6,59.3,24.7
+E04,P4,"Ultimate Thread Group: 50, 100, 250 y 500 hilos cada 30 s, pausas 0,5-1,5 s",TOTAL,40277,4.18,3,6,12,26,217,2594,6.44,262.0,1.978,153.7,5.6,29.6,59.3,24.7
+E05a,P5,50 usuarios durante 60 s,Tarifas,921,2.19,2,3,3,4,49,0,0.0,15.56,0.893,59.2,0.8,20.4,39.4,24.6
+E05a,P5,50 usuarios durante 60 s,SeleccionTarifaYCantidad,907,2.25,2,3,3,4,9,0,0.0,15.5,0.911,58.5,0.8,20.4,39.4,24.6
+E05a,P5,50 usuarios durante 60 s,Pago,896,2.23,2,3,3,4,6,0,0.0,15.5,0.903,57.8,0.8,20.4,39.4,24.6
+E05a,P5,50 usuarios durante 60 s,TOTAL,2724,2.22,2,3,3,4,49,0,0.0,45.99,0.902,59.2,0.8,20.4,39.4,24.6
+E05b,P5,50 usuarios durante 600 s,Tarifas,9916,2.03,2,3,3,3,35,0,0.0,16.56,0.813,598.7,1.1,24.2,40.4,24.6
+E05b,P5,50 usuarios durante 600 s,SeleccionTarifaYCantidad,9901,2.06,2,3,3,3,6,0,0.0,16.56,0.818,598.0,1.1,24.2,40.4,24.6
+E05b,P5,50 usuarios durante 600 s,Pago,9877,2.06,2,3,3,4,9,0,0.0,16.54,0.822,597.1,1.1,24.2,40.4,24.6
+E05b,P5,50 usuarios durante 600 s,TOTAL,29694,2.05,2,3,3,3,35,0,0.0,49.59,0.818,598.8,1.1,24.2,40.4,24.6
+E06,P6,"100 usuarios, 60 s: Tarifas y Selección reciben la misma carga",Tarifas,1851,2.17,2,3,3,4,45,0,0.0,31.29,0.876,59.2,1.2,21.5,35.5,24.7
+E06,P6,"100 usuarios, 60 s: Tarifas y Selección reciben la misma carga",SeleccionTarifaYCantidad,1815,2.21,2,3,3,4,6,0,0.0,31.21,0.896,58.2,1.2,21.5,35.5,24.7
+E06,P6,"100 usuarios, 60 s: Tarifas y Selección reciben la misma carga",Pago,1785,2.17,2,3,3,4,4,0,0.0,30.97,0.876,57.6,1.2,21.5,35.5,24.7
+E06,P6,"100 usuarios, 60 s: Tarifas y Selección reciben la misma carga",TOTAL,5451,2.18,2,3,3,4,45,0,0.0,92.15,0.883,59.2,1.2,21.5,35.5,24.7
+E07,P7,"500 usuarios x1, Selección sincronizada de a 500",Tarifas,500,2.67,2,3,3,4,59,0,0.0,47.18,1.204,10.6,4.0,25.1,32.2,24.7
+E07,P7,"500 usuarios x1, Selección sincronizada de a 500",SeleccionTarifaYCantidad,500,3.05,3,5,6,7,14,2,0.4,493.1,1.004,1.0,4.0,25.1,32.2,24.7
+E07,P7,"500 usuarios x1, Selección sincronizada de a 500",Pago,500,2.63,2,4,4,6,7,2,0.4,265.25,0.926,1.9,4.0,25.1,32.2,24.7
+E07,P7,"500 usuarios x1, Selección sincronizada de a 500",TOTAL,1500,2.78,3,4,5,6,59,4,0.27,110.47,1.045,13.6,4.0,25.1,32.2,24.7
+E08,P8,"500 usuarios x1, distribuidos (sin sincronizar)",Tarifas,500,3.08,2,3,4,60,70,0,0.0,47.55,1.494,10.5,1.7,27.1,35.6,24.6
+E08,P8,"500 usuarios x1, distribuidos (sin sincronizar)",SeleccionTarifaYCantidad,500,2.5,2,3,4,4,5,0,0.0,44.8,1.002,11.2,1.7,27.1,35.6,24.6
+E08,P8,"500 usuarios x1, distribuidos (sin sincronizar)",Pago,500,2.46,2,3,4,4,6,0,0.0,44.15,1.002,11.3,1.7,27.1,35.6,24.6
+E08,P8,"500 usuarios x1, distribuidos (sin sincronizar)",TOTAL,1500,2.68,2,3,4,4,70,0,0.0,116.32,1.166,12.9,1.7,27.1,35.6,24.6
+E09a,P9,"200 usuarios, 60 s, total validado contra datos.csv",Tarifas,3703,2.15,2,3,3,4,43,0,0.0,62.56,0.823,59.2,2.6,25.5,34.7,24.7
+E09a,P9,"200 usuarios, 60 s, total validado contra datos.csv",SeleccionTarifaYCantidad,3641,2.18,2,3,3,4,7,0,0.0,62.52,0.839,58.2,2.6,25.5,34.7,24.7
+E09a,P9,"200 usuarios, 60 s, total validado contra datos.csv",Pago,3569,2.19,2,3,3,4,7,0,0.0,61.9,0.827,57.7,2.6,25.5,34.7,24.7
+E09a,P9,"200 usuarios, 60 s, total validado contra datos.csv",TOTAL,10913,2.17,2,3,3,4,43,0,0.0,184.36,0.83,59.2,2.6,25.5,34.7,24.7
+E09b,P9,"Control: 5 usuarios, 10 s, CSV con un total mal calculado a propósito",Tarifas,16,4.56,2,3,36,36,36,0,0.0,1.9,2.938,8.4,0.2,18.4,26.0,24.4
+E09b,P9,"Control: 5 usuarios, 10 s, CSV con un total mal calculado a propósito",SeleccionTarifaYCantidad,15,3.07,3,4,5,5,5,5,33.33,2.12,1.6,7.1,0.2,18.4,26.0,24.4
+E09b,P9,"Control: 5 usuarios, 10 s, CSV con un total mal calculado a propósito",Pago,13,2.92,3,4,4,4,4,4,30.77,1.98,1.308,6.6,0.2,18.4,26.0,24.4
+E09b,P9,"Control: 5 usuarios, 10 s, CSV con un total mal calculado a propósito",TOTAL,44,3.57,3,4,4,36,36,9,20.45,5.01,2.0,8.8,0.2,18.4,26.0,24.4
+E10,P10,"500 usuarios, ramp-up 60 s, 180 s, con monitor de CPU/memoria",Tarifas,24915,6.28,3,13,15,30,171,9456,37.95,138.82,4.533,179.5,4.9,23.0,37.1,25.3
+E10,P10,"500 usuarios, ramp-up 60 s, 180 s, con monitor de CPU/memoria",SeleccionTarifaYCantidad,24746,6.3,3,13,14,32,168,9448,38.18,138.48,4.489,178.7,4.9,23.0,37.1,25.3
+E10,P10,"500 usuarios, ramp-up 60 s, 180 s, con monitor de CPU/memoria",Pago,24570,6.29,3,13,14,31,176,10962,44.62,138.04,4.484,178.0,4.9,23.0,37.1,25.3
+E10,P10,"500 usuarios, ramp-up 60 s, 180 s, con monitor de CPU/memoria",TOTAL,74231,6.29,3,13,14,31,176,29866,40.23,413.61,4.502,179.5,4.9,23.0,37.1,25.3

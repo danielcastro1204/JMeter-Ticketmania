@@ -15,13 +15,16 @@ JMeter-Ticketmania/
 │   ├── jmeter/                      # Ejercicio 1: plan que usa el pipeline
 │   │   ├── Ticketmania.jmx
 │   │   └── datos.csv                # misma carpeta que el .jmx (ruta relativa)
-│   └── experimentacion/             # Ejercicio 2: plan independiente
-│       ├── experimentacion.jmx
-│       ├── datos.csv, datos_general.csv, datos_vip.csv
-│       ├── run_experimentos.py      # ejecuta los escenarios en no-GUI y mide recursos
+│   └── experimentacion/             # Ejercicio 2: plan independiente (el pipeline no lo ejecuta)
+│       ├── experimentacion.jmx      # plantilla parametrizada con ${__P(...)}
+│       ├── escenarios/              # E01a.jmx … E10.jmx: copia concreta de cada escenario (lo que se ejecutó)
+│       ├── datos.csv                # tarifa, cantidad, total_esperado
+│       ├── datos_control_total_erroneo.csv
+│       ├── run_experimentos.py      # ejecuta los escenarios en no-GUI y mide CPU/memoria
 │       ├── graficas.py              # genera resultados/graficas/*.png
-│       ├── RESPUESTAS.md            # las 10 preguntas, diseño, resultados y limitaciones
-│       └── resultados/              # por escenario: reporte HTML, metricas.json, recursos.csv, .jtl.zip
+│       ├── RESPUESTAS.md            # las 10 preguntas «¿Qué pasaría si...?» respondidas
+│       ├── entrega/                 # documento Word (y PDF) con capturas para entregar
+│       └── resultados/              # por escenario: reporte HTML, metricas.json, recursos.csv, .jtl.zip; capturas/
 ├── .github/
 │   └── workflows/
 │       └── rendimiento.yml          # pipeline (un solo job)
@@ -69,23 +72,29 @@ cd pruebas/jmeter                           # terminal 2
 jmeter -n -t Ticketmania.jmx -l resultados.jtl -e -o reporte
 ```
 
-Resultado local: ver la sección *Ejecución local del Ejercicio 1* en
+Resultado local (600 muestras, 0 % de errores): ver la sección *Ejecución local del Ejercicio 1* en
 [`pruebas/experimentacion/RESPUESTAS.md`](pruebas/experimentacion/RESPUESTAS.md#ejecución-local-del-ejercicio-1).
 
-## Ejercicio 2 · Experimentación individual
+## Ejercicio 2 · Experimentación individual («¿Qué pasaría si...?»)
 
-Todo está en [`pruebas/experimentacion/RESPUESTAS.md`](pruebas/experimentacion/RESPUESTAS.md): las 10 preguntas,
-la variable que cambia en cada una, la métrica elegida, el escenario, los valores observados, la
-interpretación y la limitación de cada respuesta.
+Las 10 preguntas de la guía *Experimentacion_JMeter_Que_pasaria_si* (carga, estrés, concurrencia y recursos) están
+respondidas en:
+
+- **Entrega:** [`pruebas/experimentacion/entrega/Experimentacion_JMeter_Tiquetmania.docx`](pruebas/experimentacion/entrega/Experimentacion_JMeter_Tiquetmania.docx)
+  (y su [PDF](pruebas/experimentacion/entrega/Experimentacion_JMeter_Tiquetmania.pdf)). Para cada pregunta incluye el escenario,
+  las capturas del escenario configurado en JMeter, los reportes HTML, las gráficas de CPU y memoria, la respuesta y lo que no se pudo medir.
+- **Mismo contenido en Markdown:** [`pruebas/experimentacion/RESPUESTAS.md`](pruebas/experimentacion/RESPUESTAS.md).
 
 Para reproducir (desde `pruebas/experimentacion/`, sin la API corriendo, porque el script la levanta y la reinicia en cada escenario):
 
 ```bash
-pip install psutil
+pip install psutil matplotlib
 JMETER_HOME=/ruta/apache-jmeter-5.6.3 JAVA=/ruta/jdk-17/bin/java python run_experimentos.py
+python graficas.py
 ```
 
-El plan `experimentacion.jmx` está parametrizado con propiedades (`${__P(hilos,10)}`, `${__P(rampup,10)}`,
-`${__P(pausa_min,500)}`, `${__P(sync,1)}`, `${__P(csv,datos.csv)}`, `${__P(conexion,keep-alive)}`, `${__P(utg1..4,0)}`…),
-así que cada ejecución cambia **una sola variable** con `-J` sin editar el plan. El Ultimate Thread Group requiere el
-plugin *jpgc - Custom Thread Groups* (`jmeter-plugins-casutg`).
+`experimentacion.jmx` es una plantilla con propiedades (`${__P(hilos,20)}`, `${__P(rampup,10)}`, `${__P(duracion,60)}`,
+`${__P(pausa_min,500)}`, `${__P(sync,1)}`, `${__P(utg1..4,0)}`…). Para cada escenario, `run_experimentos.py` genera
+`escenarios/<ID>.jmx` con los valores concretos y lo ejecuta en no-GUI, así que cada ejecución cambia **una sola variable**.
+Antes de cada escenario reinicia la API y espera a que se liberen las conexiones TCP en `TIME_WAIT` del anterior.
+El Ultimate Thread Group requiere el plugin *jpgc - Custom Thread Groups* (`jmeter-plugins-casutg`).

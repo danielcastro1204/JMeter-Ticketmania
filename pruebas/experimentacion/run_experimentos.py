@@ -7,14 +7,17 @@ Para cada escenario:
   2. Inicia un monitor de recursos (psutil, 1 muestra/s): CPU y memoria del
      sistema, del proceso de la API (python) y del proceso de JMeter (java).
      Reemplaza a PerfMon/ServerAgent, cuya librería SIGAR falla en Windows 11.
-  3. Ejecuta: java -jar ApacheJMeter.jar -n -t experimentacion.jmx -J<prop>=<valor> ...
+  3. Genera escenarios/<ID>.jmx (copia de experimentacion.jmx con los valores
+     concretos del escenario) y ejecuta:
+     java -jar ApacheJMeter.jar -n -t escenarios/<ID>.jmx
      -l resultados/<ID>/resultados.jtl -e -o resultados/<ID>/reporte
   4. Detiene la API y guarda métricas en resultados/<ID>/metricas.json y en
      resultados/resumen.csv / resumen.md.
 
 Uso (desde pruebas/experimentacion):
   python run_experimentos.py                 # todos los escenarios
-  python run_experimentos.py E01 E04a        # solo algunos
+  python run_experimentos.py E01a E04         # solo algunos
+  python run_experimentos.py --generar       # solo genera escenarios/*.jmx
   python run_experimentos.py --listar
 
 Variables de entorno:
@@ -42,42 +45,81 @@ PLAN = AQUI / "experimentacion.jmx"
 RES = AQUI / "resultados"
 
 # Valores base: cada escenario cambia SOLO lo que declara en "props".
-BASE = {"hilos": 10, "rampup": 10, "duracion": 60, "bucles": -1,
-        "pausa_min": 500, "pausa_rango": 1000, "sync": 1,
-        "conexion": "keep-alive", "csv": "datos.csv"}
+BASE = {"hilos": 20, "rampup": 10, "duracion": 60, "bucles": -1,
+        "pausa_min": 500, "pausa_rango": 1000, "sync": 1, "sync_timeout": 30000,
+        "conexion": "keep-alive", "csv": "datos.csv",
+        "utg1": 0, "utg2": 0, "utg3": 0, "utg4": 0, "utg_pausa_min": 500, "utg_pausa_rango": 1000,
+        "host": "127.0.0.1", "puerto": 8080}
 SIN_PAUSA = {"pausa_min": 0, "pausa_rango": 0}
 
+# (id, pregunta, descripción, props cambiadas respecto de BASE)
 ESCENARIOS = [
-    # P1 Línea base
-    ("E01", "P1", "Línea base: 10 usuarios, pausas 0,5-1,5 s, 60 s", {}),
-    # P2 Escalabilidad del throughput (variable: hilos)
-    ("E02a", "P2", "25 usuarios", {"hilos": 25}),
-    ("E02b", "P2", "50 usuarios", {"hilos": 50}),
-    ("E02c", "P2", "100 usuarios", {"hilos": 100}),
-    ("E02d", "P2", "200 usuarios", {"hilos": 200}),
-    # P3 Ramp-up (variable: rampup) con 200 usuarios que hacen el flujo 1 vez
-    ("E03a", "P3", "200 usuarios x1, ramp-up 1 s", {"hilos": 200, "bucles": 1, "rampup": 1, "duracion": 600}),
-    ("E03b", "P3", "200 usuarios x1, ramp-up 60 s", {"hilos": 200, "bucles": 1, "rampup": 60, "duracion": 600}),
-    # P4 Tiempo de pensamiento (variable: temporizador) con 50 usuarios; con pausa = E02b
-    ("E04", "P4", "50 usuarios SIN temporizador", {"hilos": 50, **SIN_PAUSA}),
-    # P5 Estrés con Ultimate Thread Group: 100 -> 300 -> 600 -> 1000 hilos sin pausas
-    ("E05", "P5", "Estrés UTG: escalones 100/300/600/1000 hilos, sin pausas",
-     {"hilos": 0, "utg1": 100, "utg2": 200, "utg3": 300, "utg4": 400}),
-    # P6 Concurrencia (variable: Temporizador sincronizado)
-    ("E06a", "P6", "100 usuarios x3, sin sincronizar", {"hilos": 100, "bucles": 3, "duracion": 600, "sync": 1}),
-    ("E06b", "P6", "100 usuarios x3, Selección sincronizada en grupos de 100", {"hilos": 100, "bucles": 3, "duracion": 600, "sync": 100}),
-    # P7 Endpoint más sensible a la carga (variable: hilos, sin pausas)
-    ("E07a", "P7", "50 usuarios sin pausas", {"hilos": 50, **SIN_PAUSA}),  # = E04
-    ("E07b", "P7", "300 usuarios sin pausas", {"hilos": 300, **SIN_PAUSA}),
-    # P8 Estabilidad en el tiempo / memoria (variable: duración); 60 s = E02b
-    ("E08", "P8", "50 usuarios durante 300 s", {"hilos": 50, "duracion": 300}),
-    # P9 Tipo de tarifa (variable: CSV)
-    ("E09a", "P9", "50 usuarios, solo tarifa general", {"hilos": 50, "csv": "datos_general.csv"}),
-    ("E09b", "P9", "50 usuarios, solo tarifa vip", {"hilos": 50, "csv": "datos_vip.csv"}),
-    # P10 Reutilización de conexiones (variable: cabecera Connection)
-    ("E10a", "P10", "50 usuarios con pausas, Connection: keep-alive", {"hilos": 50, "conexion": "keep-alive"}),
-    ("E10b", "P10", "50 usuarios con pausas, Connection: close", {"hilos": 50, "conexion": "close"}),
+    # P1 Carga: 20 -> 500 usuarios (variable: hilos)
+    ("E01a", "P1", "20 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s", {}),
+    ("E01b", "P1", "500 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s", {"hilos": 500}),
+    # P2 Carga: ramp-up 1 s vs 60 s (variable: rampup) con 200 usuarios durante 120 s
+    ("E02a", "P2", "200 usuarios, ramp-up 1 s, 120 s", {"hilos": 200, "rampup": 1, "duracion": 120}),
+    ("E02b", "P2", "200 usuarios, ramp-up 60 s, 120 s", {"hilos": 200, "rampup": 60, "duracion": 120}),
+    # P3 Carga: sin temporizadores (variable: pausas); con temporizador = E01a
+    ("E03", "P3", "20 usuarios SIN temporizador, ramp-up 10 s, 60 s", SIN_PAUSA),
+    # P4 Estrés: Ultimate Thread Group 50 -> 100 -> 250 -> 500 (variable: hilos en escalones)
+    ("E04", "P4", "Ultimate Thread Group: 50, 100, 250 y 500 hilos cada 30 s, pausas 0,5-1,5 s",
+     {"hilos": 0, "utg1": 50, "utg2": 50, "utg3": 150, "utg4": 250}),
+    # P5 Estrés: 1 min vs 10 min (variable: duración) con 50 usuarios
+    ("E05a", "P5", "50 usuarios durante 60 s", {"hilos": 50, "duracion": 60}),
+    ("E05b", "P5", "50 usuarios durante 600 s", {"hilos": 50, "duracion": 600}),
+    # P6 Estrés: costo de /api/tarifas vs /api/seleccion con la misma carga (se comparan etiquetas)
+    ("E06", "P6", "100 usuarios, 60 s: Tarifas y Selección reciben la misma carga", {"hilos": 100}),
+    # P7 Concurrencia: 500 usuarios crean reservas al mismo tiempo (Temporizador sincronizado de 500)
+    ("E07", "P7", "500 usuarios x1, Selección sincronizada de a 500", {"hilos": 500, "bucles": 1, "duracion": 600, "sync": 500}),
+    # P8 Concurrencia: sincronizados (=E07) vs distribuidos (variable: sync)
+    ("E08", "P8", "500 usuarios x1, distribuidos (sin sincronizar)", {"hilos": 500, "bucles": 1, "duracion": 600, "sync": 1}),
+    # P9 Concurrencia: total cobrado = precio x cantidad bajo carga (JSON Assertion vs CSV)
+    ("E09a", "P9", "200 usuarios, 60 s, total validado contra datos.csv", {"hilos": 200}),
+    ("E09b", "P9", "Control: 5 usuarios, 10 s, CSV con un total mal calculado a propósito",
+     {"hilos": 5, "rampup": 1, "duracion": 10, "csv": "datos_control_total_erroneo.csv"}),
+    # P10 Recursos: 500 usuarios, CPU y memoria (subida lenta para ver cuándo se satura)
+    ("E10", "P10", "500 usuarios, ramp-up 60 s, 180 s, con monitor de CPU/memoria", {"hilos": 500, "rampup": 60, "duracion": 180}),
 ]
+
+
+def plan_concreto(eid, p):
+    """Copia de experimentacion.jmx con los __P reemplazados por los valores del escenario.
+
+    Es el archivo que se ejecuta y el que se abre en la GUI para las capturas.
+    """
+    import re
+    xml = PLAN.read_text(encoding="utf-8")
+    # El .jmx concreto vive en escenarios/: JMeter resuelve el CSV relativo a la carpeta del plan
+    p = {**p, "csv": "../" + p["csv"]}
+    xml = re.sub(r"\$\{__P\((\w+),([^)]*)\)\}", lambda m: str(p.get(m.group(1), m.group(2))), xml)
+    if int(p["hilos"]) == 0:
+        xml = xml.replace('testname="Carga (Grupo de Hilos estandar)" enabled="true"',
+                          'testname="Carga (Grupo de Hilos estandar)" enabled="false"')
+    if all(int(p[k]) == 0 for k in ("utg1", "utg2", "utg3", "utg4")):
+        xml = xml.replace('testname="Estres (jp@gc Ultimate Thread Group)" enabled="true"',
+                          'testname="Estres (jp@gc Ultimate Thread Group)" enabled="false"')
+    xml = xml.replace('testname="Experimentacion Ticketmania"', f'testname="Experimentacion Ticketmania - {eid}"')
+    destino = AQUI / "escenarios" / f"{eid}.jmx"
+    destino.parent.mkdir(exist_ok=True)
+    destino.write_text(xml, encoding="utf-8", newline="\n")
+    return destino
+
+
+def enfriar_puertos(limite=500, maximo_s=300):
+    """Espera a que se liberen las conexiones en TIME_WAIT del escenario anterior.
+
+    La API habla HTTP/1.0 (una conexión TCP por petición). En Windows hay 16 384 puertos
+    dinámicos y cada conexión cerrada queda un tiempo en TIME_WAIT: si el escenario anterior
+    dejó miles, el siguiente empieza con el pool agotado (java.net.BindException).
+    """
+    t0 = time.time()
+    while True:
+        n = sum(1 for c in psutil.net_connections("tcp") if c.status == psutil.CONN_TIME_WAIT)
+        if n <= limite or time.time() - t0 > maximo_s:
+            print(f"    TIME_WAIT al iniciar: {n} (espera {time.time() - t0:.0f} s)", flush=True)
+            return n
+        time.sleep(5)
 
 
 def esperar_api(timeout=30):
@@ -231,6 +273,7 @@ def ejecutar(eid, pregunta, desc, props):
     p = {**BASE, **props}
     print(f"\n=== {eid} ({pregunta}) {desc}\n    props: {props}", flush=True)
 
+    time_wait_inicial = enfriar_puertos()
     api = subprocess.Popen([sys.executable, str(API)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         if not esperar_api():
@@ -240,11 +283,13 @@ def ejecutar(eid, pregunta, desc, props):
         api_pid = hijos[-1].pid if hijos else api.pid
         mon = Monitor(api_pid, d / "recursos.csv")
         mon.start()
+        plan = plan_concreto(eid, p)
         cmd = [java, "-Xms1g", "-Xmx2g", "-jar", str(jmeter_home / "bin" / "ApacheJMeter.jar"),
-               "-n", "-t", str(PLAN),
+               "-n", "-t", str(plan),
                "-l", str(d / "resultados.jtl"), "-e", "-o", str(d / "reporte"),
-               "-j", str(d / "jmeter.log")]
-        cmd += [f"-J{k}={v}" for k, v in p.items()]
+               "-j", str(d / "jmeter.log"),
+               # gráficas "Over Time" del reporte HTML con puntos cada 1 s (por defecto: 1 min)
+               "-Jjmeter.reportgenerator.overall_granularity=1000"]
         t0 = time.time()
         subprocess.run(cmd, cwd=AQUI, check=True, stdout=subprocess.DEVNULL)
         mon.alto.set()
@@ -261,7 +306,7 @@ def ejecutar(eid, pregunta, desc, props):
     stats, errores, serie = analizar_jtl(d / "resultados.jtl")
     recursos = resumen_recursos(d / "recursos.csv")
     out = {"id": eid, "pregunta": pregunta, "descripcion": desc, "props_cambiadas": props,
-           "props_efectivas": p, "duracion_real_s": round(time.time() - t0, 1),
+           "props_efectivas": p, "time_wait_inicial": time_wait_inicial, "duracion_real_s": round(time.time() - t0, 1),
            "estadisticas": stats, "errores": errores, "serie_10s": serie, "recursos": recursos}
     (d / "metricas.json").write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
     t = stats["TOTAL"]
@@ -303,6 +348,10 @@ def main():
     if "--listar" in args:
         for e in ESCENARIOS:
             print(e[0], e[1], e[2], e[3])
+        return
+    if "--generar" in args:
+        for e in ESCENARIOS:
+            print(plan_concreto(e[0], {**BASE, **e[3]}))
         return
     if "--consolidar" in args:
         consolidar()

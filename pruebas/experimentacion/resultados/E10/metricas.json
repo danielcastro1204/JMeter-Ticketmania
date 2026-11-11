@@ -1,0 +1,261 @@
+{
+  "id": "E10",
+  "pregunta": "P10",
+  "descripcion": "500 usuarios, ramp-up 60 s, 180 s, con monitor de CPU/memoria",
+  "props_cambiadas": {
+    "hilos": 500,
+    "rampup": 60,
+    "duracion": 180
+  },
+  "props_efectivas": {
+    "hilos": 500,
+    "rampup": 60,
+    "duracion": 180,
+    "bucles": -1,
+    "pausa_min": 500,
+    "pausa_rango": 1000,
+    "sync": 1,
+    "sync_timeout": 30000,
+    "conexion": "keep-alive",
+    "csv": "datos.csv",
+    "utg1": 0,
+    "utg2": 0,
+    "utg3": 0,
+    "utg4": 0,
+    "utg_pausa_min": 500,
+    "utg_pausa_rango": 1000,
+    "host": "127.0.0.1",
+    "puerto": 8080
+  },
+  "time_wait_inicial": 416,
+  "duracion_real_s": 193.4,
+  "estadisticas": {
+    "Tarifas": {
+      "muestras": 24915,
+      "media_ms": 6.28,
+      "mediana_ms": 3,
+      "p90_ms": 13,
+      "p95_ms": 15,
+      "p99_ms": 30,
+      "max_ms": 171,
+      "errores": 9456,
+      "error_pct": 37.95,
+      "throughput_rps": 138.82,
+      "connect_media_ms": 4.533,
+      "duracion_s": 179.5
+    },
+    "SeleccionTarifaYCantidad": {
+      "muestras": 24746,
+      "media_ms": 6.3,
+      "mediana_ms": 3,
+      "p90_ms": 13,
+      "p95_ms": 14,
+      "p99_ms": 32,
+      "max_ms": 168,
+      "errores": 9448,
+      "error_pct": 38.18,
+      "throughput_rps": 138.48,
+      "connect_media_ms": 4.489,
+      "duracion_s": 178.7
+    },
+    "Pago": {
+      "muestras": 24570,
+      "media_ms": 6.29,
+      "mediana_ms": 3,
+      "p90_ms": 13,
+      "p95_ms": 14,
+      "p99_ms": 31,
+      "max_ms": 176,
+      "errores": 10962,
+      "error_pct": 44.62,
+      "throughput_rps": 138.04,
+      "connect_media_ms": 4.484,
+      "duracion_s": 178.0
+    },
+    "TOTAL": {
+      "muestras": 74231,
+      "media_ms": 6.29,
+      "mediana_ms": 3,
+      "p90_ms": 13,
+      "p95_ms": 14,
+      "p99_ms": 31,
+      "max_ms": 176,
+      "errores": 29866,
+      "error_pct": 40.23,
+      "throughput_rps": 413.61,
+      "connect_media_ms": 4.502,
+      "duracion_s": 179.5
+    }
+  },
+  "errores": {
+    "Tarifas | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 663,
+    "Tarifas | Non HTTP response code: java.net.BindException | Non HTTP response message: Address already in use: getsockop": 8793,
+    "SeleccionTarifaYCantidad | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 607,
+    "Pago | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 629,
+    "Pago | 404 | Not Found": 1568,
+    "Pago | Non HTTP response code: java.net.BindException | Non HTTP response message: Address already in use: getsockop": 8765,
+    "SeleccionTarifaYCantidad | Non HTTP response code: java.net.BindException | Non HTTP response message: Address already in use: getsockop": 8841
+  },
+  "serie_10s": [
+    {
+      "seg": 0,
+      "rps": 44.7,
+      "media_ms": 2.8,
+      "p95_ms": 4,
+      "error_pct": 0.0,
+      "hilos": 91
+    },
+    {
+      "seg": 10,
+      "rps": 130.3,
+      "media_ms": 2.2,
+      "p95_ms": 3,
+      "error_pct": 0.0,
+      "hilos": 174
+    },
+    {
+      "seg": 20,
+      "rps": 209.7,
+      "media_ms": 2.2,
+      "p95_ms": 3,
+      "error_pct": 0.0,
+      "hilos": 257
+    },
+    {
+      "seg": 30,
+      "rps": 294.7,
+      "media_ms": 2.3,
+      "p95_ms": 4,
+      "error_pct": 0.0,
+      "hilos": 341
+    },
+    {
+      "seg": 40,
+      "rps": 375.6,
+      "media_ms": 2.2,
+      "p95_ms": 4,
+      "error_pct": 0.0,
+      "hilos": 424
+    },
+    {
+      "seg": 50,
+      "rps": 460.5,
+      "media_ms": 2.6,
+      "p95_ms": 4,
+      "error_pct": 0.0,
+      "hilos": 500
+    },
+    {
+      "seg": 60,
+      "rps": 495.2,
+      "media_ms": 3.0,
+      "p95_ms": 5,
+      "error_pct": 0.2,
+      "hilos": 500
+    },
+    {
+      "seg": 70,
+      "rps": 497.8,
+      "media_ms": 3.2,
+      "p95_ms": 6,
+      "error_pct": 0.3,
+      "hilos": 500
+    },
+    {
+      "seg": 80,
+      "rps": 495.4,
+      "media_ms": 3.9,
+      "p95_ms": 8,
+      "error_pct": 1.5,
+      "hilos": 500
+    },
+    {
+      "seg": 90,
+      "rps": 493.6,
+      "media_ms": 5.9,
+      "p95_ms": 15,
+      "error_pct": 6.2,
+      "hilos": 500
+    },
+    {
+      "seg": 100,
+      "rps": 494.2,
+      "media_ms": 9.1,
+      "p95_ms": 17,
+      "error_pct": 64.3,
+      "hilos": 500
+    },
+    {
+      "seg": 110,
+      "rps": 495.3,
+      "media_ms": 8.7,
+      "p95_ms": 14,
+      "error_pct": 100.0,
+      "hilos": 500
+    },
+    {
+      "seg": 120,
+      "rps": 494.5,
+      "media_ms": 8.6,
+      "p95_ms": 14,
+      "error_pct": 99.8,
+      "hilos": 500
+    },
+    {
+      "seg": 130,
+      "rps": 494.5,
+      "media_ms": 8.6,
+      "p95_ms": 14,
+      "error_pct": 97.0,
+      "hilos": 500
+    },
+    {
+      "seg": 140,
+      "rps": 492.1,
+      "media_ms": 8.9,
+      "p95_ms": 15,
+      "error_pct": 90.0,
+      "hilos": 500
+    },
+    {
+      "seg": 150,
+      "rps": 494.2,
+      "media_ms": 13.6,
+      "p95_ms": 37,
+      "error_pct": 72.9,
+      "hilos": 500
+    },
+    {
+      "seg": 160,
+      "rps": 497.0,
+      "media_ms": 4.8,
+      "p95_ms": 13,
+      "error_pct": 44.9,
+      "hilos": 500
+    },
+    {
+      "seg": 170,
+      "rps": 463.8,
+      "media_ms": 9.6,
+      "p95_ms": 37,
+      "error_pct": 28.7,
+      "hilos": 500
+    }
+  ],
+  "recursos": {
+    "cpu_sistema_pct_media": 19.0,
+    "cpu_sistema_pct_max": 37.1,
+    "cpu_api_pct_media": 1.8,
+    "cpu_api_pct_max": 4.9,
+    "cpu_jmeter_pct_media": 6.2,
+    "cpu_jmeter_pct_max": 23.0,
+    "mem_api_mb_media": 24.7,
+    "mem_api_mb_max": 25.3,
+    "mem_jmeter_mb_media": 692.7,
+    "mem_jmeter_mb_max": 877.4,
+    "hilos_api_media": 3.8,
+    "hilos_api_max": 7.0,
+    "mem_api_mb_inicio": 24.4,
+    "mem_api_mb_fin": 25.1
+  }
+}

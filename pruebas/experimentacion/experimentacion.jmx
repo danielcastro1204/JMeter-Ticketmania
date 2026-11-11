@@ -2,7 +2,7 @@
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Experimentacion Ticketmania">
-      <stringProp name="TestPlan.comments">Plan de experimentación (independiente del pipeline). Cada escenario cambia UNA propiedad con -J; ver run_experimentos.py y RESPUESTAS.md.</stringProp>
+      <stringProp name="TestPlan.comments">Plan de experimentación (independiente del pipeline). Plantilla parametrizada con __P: run_experimentos.py genera una copia con valores concretos por escenario (escenarios/*.jmx). Cada escenario cambia UNA variable.</stringProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
@@ -47,7 +47,7 @@
         <boolProp name="recycle">true</boolProp>
         <stringProp name="shareMode">shareMode.all</stringProp>
         <boolProp name="stopThread">false</boolProp>
-        <stringProp name="variableNames">tarifa,cantidad</stringProp>
+        <stringProp name="variableNames">tarifa,cantidad,total_esperado</stringProp>
       </CSVDataSet>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Carga (Grupo de Hilos estandar)" enabled="true">
@@ -104,9 +104,18 @@
             <stringProp name="JSONPostProcessor.defaultValues">num_reserva_not_found</stringProp>
           </JSONPostProcessor>
           <hashTree/>
+          <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion total = precio x cantidad (CSV total_esperado)" enabled="true">
+            <stringProp name="JSON_PATH">$.total</stringProp>
+            <stringProp name="EXPECTED_VALUE">${total_esperado}</stringProp>
+            <boolProp name="JSONVALIDATION">true</boolProp>
+            <boolProp name="EXPECT_NULL">false</boolProp>
+            <boolProp name="INVERT">false</boolProp>
+            <boolProp name="ISREGEX">false</boolProp>
+          </JSONPathAssertion>
+          <hashTree/>
           <SyncTimer guiclass="TestBeanGUI" testclass="SyncTimer" testname="Temporizador sincronizado (sync usuarios)" enabled="true">
             <stringProp name="groupSize">${__P(sync,1)}</stringProp>
-            <stringProp name="timeoutInMs">${__P(sync_timeout,5000)}</stringProp>
+            <stringProp name="timeoutInMs">${__P(sync_timeout,30000)}</stringProp>
           </SyncTimer>
           <hashTree/>
         </hashTree>
@@ -130,6 +139,15 @@
           <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion estado = APROBADO" enabled="true">
             <stringProp name="JSON_PATH">$.estado</stringProp>
             <stringProp name="EXPECTED_VALUE">APROBADO</stringProp>
+            <boolProp name="JSONVALIDATION">true</boolProp>
+            <boolProp name="EXPECT_NULL">false</boolProp>
+            <boolProp name="INVERT">false</boolProp>
+            <boolProp name="ISREGEX">false</boolProp>
+          </JSONPathAssertion>
+          <hashTree/>
+          <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion total = precio x cantidad (CSV total_esperado)" enabled="true">
+            <stringProp name="JSON_PATH">$.total</stringProp>
+            <stringProp name="EXPECTED_VALUE">${total_esperado}</stringProp>
             <boolProp name="JSONVALIDATION">true</boolProp>
             <boolProp name="EXPECT_NULL">false</boolProp>
             <boolProp name="INVERT">false</boolProp>
@@ -182,6 +200,11 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
       </kg.apc.jmeter.threads.UltimateThreadGroup>
       <hashTree>
+        <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Temporizador Aleatorio Uniforme estres (utg_pausa_min + 0..utg_pausa_rango)" enabled="true">
+          <stringProp name="ConstantTimer.delay">${__P(utg_pausa_min,500)}</stringProp>
+          <stringProp name="RandomTimer.range">${__P(utg_pausa_rango,1000)}</stringProp>
+        </UniformRandomTimer>
+        <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Tarifas" enabled="true">
           <stringProp name="HTTPSampler.path">/api/tarifas</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -217,6 +240,15 @@
             <stringProp name="JSONPostProcessor.defaultValues">num_reserva_not_found</stringProp>
           </JSONPostProcessor>
           <hashTree/>
+          <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion total = precio x cantidad (CSV total_esperado)" enabled="true">
+            <stringProp name="JSON_PATH">$.total</stringProp>
+            <stringProp name="EXPECTED_VALUE">${total_esperado}</stringProp>
+            <boolProp name="JSONVALIDATION">true</boolProp>
+            <boolProp name="EXPECT_NULL">false</boolProp>
+            <boolProp name="INVERT">false</boolProp>
+            <boolProp name="ISREGEX">false</boolProp>
+          </JSONPathAssertion>
+          <hashTree/>
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Pago" enabled="true">
           <stringProp name="HTTPSampler.path">/api/pago</stringProp>
@@ -238,6 +270,15 @@
           <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion estado = APROBADO" enabled="true">
             <stringProp name="JSON_PATH">$.estado</stringProp>
             <stringProp name="EXPECTED_VALUE">APROBADO</stringProp>
+            <boolProp name="JSONVALIDATION">true</boolProp>
+            <boolProp name="EXPECT_NULL">false</boolProp>
+            <boolProp name="INVERT">false</boolProp>
+            <boolProp name="ISREGEX">false</boolProp>
+          </JSONPathAssertion>
+          <hashTree/>
+          <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion total = precio x cantidad (CSV total_esperado)" enabled="true">
+            <stringProp name="JSON_PATH">$.total</stringProp>
+            <stringProp name="EXPECTED_VALUE">${total_esperado}</stringProp>
             <boolProp name="JSONVALIDATION">true</boolProp>
             <boolProp name="EXPECT_NULL">false</boolProp>
             <boolProp name="INVERT">false</boolProp>

@@ -1,0 +1,160 @@
+{
+  "id": "E01b",
+  "pregunta": "P1",
+  "descripcion": "500 usuarios, ramp-up 10 s, 60 s, pausas 0,5-1,5 s",
+  "props_cambiadas": {
+    "hilos": 500
+  },
+  "props_efectivas": {
+    "hilos": 500,
+    "rampup": 10,
+    "duracion": 60,
+    "bucles": -1,
+    "pausa_min": 500,
+    "pausa_rango": 1000,
+    "sync": 1,
+    "sync_timeout": 30000,
+    "conexion": "keep-alive",
+    "csv": "datos.csv",
+    "utg1": 0,
+    "utg2": 0,
+    "utg3": 0,
+    "utg4": 0,
+    "utg_pausa_min": 500,
+    "utg_pausa_rango": 1000,
+    "host": "127.0.0.1",
+    "puerto": 8080
+  },
+  "duracion_real_s": 71.4,
+  "estadisticas": {
+    "Tarifas": {
+      "muestras": 9248,
+      "media_ms": 3.64,
+      "mediana_ms": 3,
+      "p90_ms": 6,
+      "p95_ms": 8,
+      "p99_ms": 14,
+      "max_ms": 53,
+      "errores": 123,
+      "error_pct": 1.33,
+      "throughput_rps": 155.7,
+      "connect_media_ms": 1.222,
+      "duracion_s": 59.4
+    },
+    "SeleccionTarifaYCantidad": {
+      "muestras": 9072,
+      "media_ms": 3.71,
+      "mediana_ms": 3,
+      "p90_ms": 6,
+      "p95_ms": 8,
+      "p99_ms": 13,
+      "max_ms": 54,
+      "errores": 97,
+      "error_pct": 1.07,
+      "throughput_rps": 154.68,
+      "connect_media_ms": 1.214,
+      "duracion_s": 58.6
+    },
+    "Pago": {
+      "muestras": 8923,
+      "media_ms": 3.7,
+      "mediana_ms": 3,
+      "p90_ms": 6,
+      "p95_ms": 8,
+      "p99_ms": 14,
+      "max_ms": 41,
+      "errores": 211,
+      "error_pct": 2.36,
+      "throughput_rps": 153.67,
+      "connect_media_ms": 1.225,
+      "duracion_s": 58.1
+    },
+    "TOTAL": {
+      "muestras": 27243,
+      "media_ms": 3.68,
+      "mediana_ms": 3,
+      "p90_ms": 6,
+      "p95_ms": 8,
+      "p99_ms": 14,
+      "max_ms": 54,
+      "errores": 431,
+      "error_pct": 1.58,
+      "throughput_rps": 458.5,
+      "connect_media_ms": 1.22,
+      "duracion_s": 59.4
+    }
+  },
+  "errores": {
+    "Tarifas | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 123,
+    "Pago | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 114,
+    "SeleccionTarifaYCantidad | Non HTTP response code: org.apache.http.conn.HttpHostConnectException | Non HTTP response message: Connect to 127.0.0.1:8080 [/127.0": 96,
+    "Pago | 404 | Not Found": 97,
+    "SeleccionTarifaYCantidad | Non HTTP response code: java.net.BindException | Non HTTP response message: Address already in use: getsockop": 1
+  },
+  "serie_10s": [
+    {
+      "seg": 0,
+      "rps": 272.8,
+      "media_ms": 2.9,
+      "p95_ms": 5,
+      "error_pct": 0.3,
+      "hilos": 500
+    },
+    {
+      "seg": 10,
+      "rps": 495.7,
+      "media_ms": 3.5,
+      "p95_ms": 8,
+      "error_pct": 2.5,
+      "hilos": 500
+    },
+    {
+      "seg": 20,
+      "rps": 502.7,
+      "media_ms": 3.3,
+      "p95_ms": 6,
+      "error_pct": 0.9,
+      "hilos": 500
+    },
+    {
+      "seg": 30,
+      "rps": 496.7,
+      "media_ms": 4.1,
+      "p95_ms": 8,
+      "error_pct": 1.1,
+      "hilos": 500
+    },
+    {
+      "seg": 40,
+      "rps": 496.8,
+      "media_ms": 2.7,
+      "p95_ms": 5,
+      "error_pct": 0.4,
+      "hilos": 500
+    },
+    {
+      "seg": 50,
+      "rps": 459.6,
+      "media_ms": 5.3,
+      "p95_ms": 13,
+      "error_pct": 3.9,
+      "hilos": 500
+    }
+  ],
+  "recursos": {
+    "cpu_sistema_pct_media": 35.6,
+    "cpu_sistema_pct_max": 72.0,
+    "cpu_api_pct_media": 3.3,
+    "cpu_api_pct_max": 5.3,
+    "cpu_jmeter_pct_media": 7.5,
+    "cpu_jmeter_pct_max": 24.5,
+    "mem_api_mb_media": 24.6,
+    "mem_api_mb_max": 24.8,
+    "mem_jmeter_mb_media": 597.6,
+    "mem_jmeter_mb_max": 853.9,
+    "hilos_api_media": 5.2,
+    "hilos_api_max": 8.0,
+    "mem_api_mb_inicio": 24.4,
+    "mem_api_mb_fin": 24.6
+  }
+}
