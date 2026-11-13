@@ -84,17 +84,3 @@ respondidas en:
   (y su [PDF](pruebas/experimentacion/entrega/Experimentacion_JMeter_Tiquetmania.pdf)). Para cada pregunta incluye el escenario,
   las capturas del escenario configurado en JMeter, los reportes HTML, las gráficas de CPU y memoria, la respuesta y lo que no se pudo medir.
 - **Mismo contenido en Markdown:** [`pruebas/experimentacion/RESPUESTAS.md`](pruebas/experimentacion/RESPUESTAS.md).
-
-Para reproducir (desde `pruebas/experimentacion/`, sin la API corriendo, porque el script la levanta y la reinicia en cada escenario):
-
-```bash
-pip install psutil matplotlib
-JMETER_HOME=/ruta/apache-jmeter-5.6.3 JAVA=/ruta/jdk-17/bin/java python run_experimentos.py
-python graficas.py
-```
-
-`experimentacion.jmx` es una plantilla con propiedades (`${__P(hilos,20)}`, `${__P(rampup,10)}`, `${__P(duracion,60)}`,
-`${__P(pausa_min,500)}`, `${__P(sync,1)}`, `${__P(utg1..4,0)}`…). Para cada escenario, `run_experimentos.py` genera
-`escenarios/<ID>.jmx` con los valores concretos y lo ejecuta en no-GUI, así que cada ejecución cambia **una sola variable**.
-Antes de cada escenario reinicia la API y espera a que se liberen las conexiones TCP en `TIME_WAIT` del anterior.
-El Ultimate Thread Group requiere el plugin *jpgc - Custom Thread Groups* (`jmeter-plugins-casutg`).
