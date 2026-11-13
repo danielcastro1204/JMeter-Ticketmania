@@ -64,14 +64,6 @@ El reporte se descarga desde la pestaña **Actions → ejecución → Artifacts 
 > la carga corre de principio a fin sin errores, **no** mide la capacidad de la API. La medición fina se
 > hace en local (Ejercicio 2).
 
-### Ejecución local (hecha antes de subir el plan)
-
-```bash
-python api/ticketmania_simple.py            # terminal 1: http://127.0.0.1:8080
-cd pruebas/jmeter                           # terminal 2
-jmeter -n -t Ticketmania.jmx -l resultados.jtl -e -o reporte
-```
-
 Resultado local (600 muestras, 0 % de errores): ver la sección *Ejecución local del Ejercicio 1* en
 [`pruebas/experimentacion/RESPUESTAS.md`](pruebas/experimentacion/RESPUESTAS.md#ejecución-local-del-ejercicio-1).
 
