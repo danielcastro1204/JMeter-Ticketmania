@@ -1,7 +1,5 @@
 # Tiquetmania · Pruebas de rendimiento con JMeter
 
-[![Pruebas de rendimiento](https://github.com/danielcastro1204/JMeter-Ticketmania/actions/workflows/rendimiento.yml/badge.svg)](https://github.com/danielcastro1204/JMeter-Ticketmania/actions/workflows/rendimiento.yml)
-
 Monorepo del taller: la API de Tiquetmania, el plan de JMeter del pipeline, el pipeline de GitHub Actions
 y la experimentación individual viven en el mismo repositorio, así que el pipeline prueba exactamente el
 commit que se sube.
