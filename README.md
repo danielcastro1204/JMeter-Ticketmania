@@ -23,7 +23,6 @@ JMeter-Ticketmania/
 │       ├── run_experimentos.py      # ejecuta los escenarios en no-GUI y mide CPU/memoria
 │       ├── graficas.py              # genera resultados/graficas/*.png
 │       ├── RESPUESTAS.md            # las 10 preguntas «¿Qué pasaría si...?» respondidas
-│       ├── entrega/                 # documento Word (y PDF) con capturas para entregar
 │       └── resultados/              # por escenario: reporte HTML, metricas.json, recursos.csv, .jtl.zip; capturas/
 ├── .github/
 │   └── workflows/
